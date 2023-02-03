@@ -21,6 +21,7 @@ class Scanner
         Token lastoken;
         std::ifstream &file;
         Logger *logger = nullptr;
+        int line;
 
 };
 

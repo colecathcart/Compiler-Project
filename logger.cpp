@@ -42,7 +42,7 @@ void Logger::error(std::string msg){
 
 }
 
-//Prints an error message containing the 'msg' parameter
+//Override function: Prints an error message containing the 'msg' parameter
 //and the line number containing the error (for use by the scanner)
 //and then exits with nonzero value to indicate an error
 void Logger::error(std::string msg, int line){
@@ -72,7 +72,7 @@ void Logger::warning(std::string msg){
 
 }
 
-//Prints a warning containing the 'msg' parameter
+//Override function: Prints a warning containing the 'msg' parameter
 //and the line number containing the warning (for use by the scanner)
 //and then calls the warn checker in case warnings = 10
 void Logger::warning(std::string msg, int line){
