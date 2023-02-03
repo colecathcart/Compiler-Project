@@ -11,6 +11,29 @@
 /// This implementation is written purely in C++, without the use
 /// of tools (lex, flex, etc)
 
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+
 int main(int argc, char* argv[]){
+
+    if(argc < 2){
+        fprintf(stderr, "Error: Need to specify 1 command-line arg for input file\n");
+        return 1;
+    }
+
+    if(argc > 2){
+        fprintf(stderr, "Error: Too many command-line args (need 1 for input file)\n");
+        return 1;
+    }
+
+    std::ifstream file(argv[1]);
+
+    if(!file){
+        fprintf(stderr, "Error: Could not find or open specified file\n");
+        return 1;
+    }
+
+    file.close();
 
 }
