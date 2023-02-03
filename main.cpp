@@ -2,9 +2,10 @@
 /// Cole Cathcart, 30043556
 /// Feb 3, 2023
 ///
-/// This is the scanner class which contains all the functionality
-/// of the compiler scanner. Its methods are called by main.cpp.
-/// The implementation is based off  Dr. Aycock's example code 
+/// This is the main method which acts as the driver of the compiler
+/// program. Currently its only function is to call the methods from
+/// scanner.cpp and print the tokens to standart output.
+/// The implementation is based off Dr. Aycock's example code 
 /// in python, shown in the video series "Calculator demo video 
 /// series" under "Other resources" on the CPSC 411 d2l page.
 ///
@@ -14,25 +15,31 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include "scanner.hpp"
+#include "logger.hpp"
 
 int main(int argc, char* argv[]){
 
+    Logger* logger = Logger::getLogger();
+
     if(argc < 2){
-        fprintf(stderr, "Error: Need to specify 1 command-line arg for input file\n");
+        logger->error("Need to specify 1 command-line arg for input file");
         return 1;
     }
 
     if(argc > 2){
-        fprintf(stderr, "Error: Too many command-line args (need 1 for input file)\n");
+        logger->error("Too many command-line args (need 1 for input file)");
         return 1;
     }
 
     std::ifstream file(argv[1]);
 
     if(!file){
-        fprintf(stderr, "Error: Could not find or open specified file\n");
+        logger->error("Could not find or open specified file");
         return 1;
     }
+
+
 
     file.close();
 

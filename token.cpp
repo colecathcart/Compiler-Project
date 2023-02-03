@@ -1,9 +1,14 @@
+/// CPSC 411 Term Project: Main Class
+/// Cole Cathcart, 30043556
+/// Feb 3, 2023
+/// Class to represent and contain information about a token.
+/// Current implementation is only for the scanner, at minimum
+/// the 'type' will be changed to an enum later for better functionality
+
 #include "token.hpp"
 #include <string>
 
-//Class to represent and contain information about a token.
-//Current implementation is only for the scanner, at minimum
-//the 'type' will be changed to an enum later for better functionality
+//Token constructor
 //
 //string type: the type of token as outlined in the GoLF specs
 //
