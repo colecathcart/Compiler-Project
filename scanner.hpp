@@ -22,6 +22,8 @@ class Scanner
         std::ifstream &file;
         Logger *logger = nullptr;
         int line;
+        bool ins_semi;
+        bool maybe_semi;
 
 };
 

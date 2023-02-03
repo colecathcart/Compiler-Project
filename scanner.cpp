@@ -18,10 +18,25 @@
 //
 //std::ifstream &f: the file to be read from
 //
+//bool reread: boolean set by unlex() so that lex() returns the previous token
+//
+//Token lastoken: the last token returned by lex
+//
+//Logger::getLogger logger: the logger object (see logger.cpp)
+//
+//int line: the current line number
+//
+//bool ins_semi: boolean set by lex() if the next token should be a semicolon, as per GoLF specs
+//
+//bool maybe_semi: boolean set by lex() to aid in deciding value of ins_semi
+//
 Scanner::Scanner(std::ifstream &f) : reread{false}, lastoken{"","",0}, file{f} {
 
     logger = Logger::getLogger();
     line = 1;
+    ins_semi = false;
+    maybe_semi = false;
+
 }
 
 //Helper function to check for whitespace
@@ -96,18 +111,37 @@ bool islegalescape(char ch){
 //requires an error (prints to standard error and exits), or should be ignored.
 //If reread has been set to true, simply returns the last calculated token
 Token Scanner::lex(){
+
+    //check for reread from unlex()
     if(reread == true){
         reread = false;
         return lastoken;
     }
 
+    //check if next token should be a semicolon
+    if(maybe_semi){
+        char check = file.get();
+        if(check == EOF || check == '\n'){
+            ins_semi = true;
+        }
+        maybe_semi = false;
+        file.unget();
+    }
+
+
     while(true){
         char ch = file.get();
 
+        //return semi-colon token
+        if(ins_semi == true){
+            lastoken = Token(";","",line);
+            ins_semi = false;
+            file.unget();
+        
         //check for eof
-        if(ch == EOF){
+        }else if(ch == EOF){
             lastoken = Token("EOF", "EOF", line);
-
+            
         //check for non-ascii characters
         }else if(isnotascii(ch)){
             logger->warning("Skipping non-ASCII character",line);
@@ -129,6 +163,9 @@ Token Scanner::lex(){
         } else if(issingleton(ch)){
             std::string s(1,ch);
             lastoken = Token(s, s, line);
+            if(ch == '}' || ch == ')'){
+                maybe_semi = true;
+            }
 
         //check for '!' or '!='
         } else if(ch == '!'){
@@ -211,6 +248,7 @@ Token Scanner::lex(){
             }
             file.unget();
             lastoken = Token("INTEGER",number,line);
+            maybe_semi = true;
         
         //check for identifiers or keywords
         } else if(isalpha(ch) || ch == '_'){
@@ -226,8 +264,12 @@ Token Scanner::lex(){
             file.unget();
             if(iskeyword(word)){
                 lastoken = Token("KEYWORD",word,line);
+                if(word == "break" || word == "return"){
+                    maybe_semi = true;
+                }
             } else {
                 lastoken = Token("ID",word,line);
+                maybe_semi = true;
             }
             
         //check for strings and string errors    
@@ -256,6 +298,7 @@ Token Scanner::lex(){
                 }
             }
             lastoken = Token("STRING",string,line);
+            maybe_semi = true;
 
         //unrecognized characters
         } else {
