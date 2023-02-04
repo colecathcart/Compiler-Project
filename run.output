@@ -1,0 +1,677 @@
+Run started on Fri Feb  3 19:06:42 2023
+
+Hostname: linux10-ea.cs.ucalgary.ca
+
+-------------------------------------------------------------------------------
+Running make |
+--------------
+
+% /usr/bin/make
+
+STDOUT:
+g++ -Wall -c main.cpp
+g++ -Wall -c scanner.cpp
+g++ -Wall -c token.cpp
+g++ -Wall -c logger.cpp
+g++ -Wall main.o scanner.o logger.o token.o -o golf
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Locating GoLF compiler |
+------------------------
+
+Compiler will be run as ./golf
+
+-------------------------------------------------------------------------------
+Test: too few arguments |
+-------------------------
+
+% ./golf
+
+STDOUT:
+
+
+STDERR:
+Error: Need to specify 1 command-line arg for input file
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: too many arguments |
+--------------------------
+
+% ./golf /dev/null /dev/zero
+
+STDOUT:
+
+
+STDERR:
+Error: Too many command-line args (need 1 for input file)
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: nonexistent file |
+------------------------
+
+% ./golf /i/do/not/exist
+
+STDOUT:
+
+
+STDERR:
+Error: Could not find or open specified file
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: empty file |
+------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t1
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: comment ending in EOF |
+-----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t2
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: comment only |
+--------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t3
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: illegal whitespace |
+--------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t4
+
+STDOUT:
+
+
+STDERR:
+Warning: Skipping unrecognized character, at or near line 2
+Warning: Skipping unrecognized character, at or near line 3
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: legal whitespace |
+------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t5
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: "}" with no previous token |
+----------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t6
+
+STDOUT:
+Token: type=[}], attr=[}], at line 1
+Token: type=[;], attr=[], at line 1
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: the carat schtick |
+-------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t7
+
+STDOUT:
+
+
+STDERR:
+Warning: Skipping unrecognized character, at or near line 2
+Warning: Skipping unrecognized character, at or near line 3
+Warning: Skipping unrecognized character, at or near line 4
+Warning: Skipping unrecognized character, at or near line 5
+Warning: Skipping unrecognized character, at or near line 6
+Warning: Skipping unrecognized character, at or near line 7
+Warning: Skipping unrecognized character, at or near line 8
+Warning: Skipping unrecognized character, at or near line 9
+Warning: Skipping unrecognized character, at or near line 10
+Warning: Skipping unrecognized character, at or near line 11
+Warning: Skipping unrecognized character, at or near line 12
+Error: Too many warnings!
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: NUL character |
+---------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t8
+
+STDOUT:
+
+
+STDERR:
+Warning: Skipping NUL character, at or near line 2
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: non-7-bit chars |
+-----------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t9
+
+STDOUT:
+
+
+STDERR:
+Warning: Skipping non-ASCII character, at or near line 2
+Warning: Skipping non-ASCII character, at or near line 2
+Warning: Skipping non-ASCII character, at or near line 2
+Warning: Skipping non-ASCII character, at or near line 2
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: whitespace inside && token pair |
+---------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t10
+
+STDOUT:
+
+
+STDERR:
+Error: Bitwise AND not supported in GoLF, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: whitespace inside || token pair |
+---------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t11
+
+STDOUT:
+
+
+STDERR:
+Error: Bitwise OR not supported in GoLF, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: leading 0 on number |
+---------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t12
+
+STDOUT:
+Token: type=[INTEGER], attr=[0600], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: comment inside && token pair |
+------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t13
+
+STDOUT:
+
+
+STDERR:
+Error: Bitwise AND not supported in GoLF, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: illegal characters |
+--------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t14
+
+STDOUT:
+
+
+STDERR:
+Warning: Skipping unrecognized character, at or near line 3
+Warning: Skipping unrecognized character, at or near line 3
+Warning: Skipping unrecognized character, at or near line 3
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: legit token salad |
+-------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t15
+
+STDOUT:
+Token: type=[+], attr=[+], at line 3
+Token: type=[-], attr=[-], at line 4
+Token: type=[*], attr=[*], at line 5
+Token: type=[/], attr=[/], at line 6
+Token: type=[%], attr=[%], at line 7
+Token: type=[(], attr=[(], at line 8
+Token: type=[)], attr=[)], at line 9
+Token: type=[;], attr=[], at line 9
+Token: type=[{], attr=[{], at line 10
+Token: type=[;], attr=[], at line 11
+Token: type=[}], attr=[}], at line 11
+Token: type=[;], attr=[], at line 11
+Token: type=[;], attr=[;], at line 12
+Token: type=[,], attr=[,], at line 13
+Token: type=[!], attr=[!], at line 17
+Token: type=[!=], attr=[!=], at line 17
+Token: type=[=], attr=[=], at line 18
+Token: type=[==], attr=[==], at line 18
+Token: type=[<], attr=[<], at line 19
+Token: type=[<=], attr=[<=], at line 19
+Token: type=[>], attr=[>], at line 20
+Token: type=[>=], attr=[>=], at line 20
+Token: type=[>], attr=[>], at line 22
+Token: type=[=], attr=[=], at line 22
+Token: type=[&&], attr=[&&], at line 26
+Token: type=[||], attr=[||], at line 27
+Token: type=[KEYWORD], attr=[break], at line 31
+Token: type=[;], attr=[], at line 31
+Token: type=[KEYWORD], attr=[else], at line 32
+Token: type=[KEYWORD], attr=[for], at line 33
+Token: type=[KEYWORD], attr=[func], at line 34
+Token: type=[KEYWORD], attr=[if], at line 35
+Token: type=[KEYWORD], attr=[return], at line 36
+Token: type=[;], attr=[], at line 36
+Token: type=[KEYWORD], attr=[var], at line 37
+Token: type=[ID], attr=[Break], at line 41
+Token: type=[;], attr=[], at line 41
+Token: type=[ID], attr=[switch], at line 42
+Token: type=[;], attr=[], at line 42
+Token: type=[ID], attr=[case], at line 43
+Token: type=[;], attr=[], at line 43
+Token: type=[ID], attr=[goto], at line 44
+Token: type=[;], attr=[], at line 44
+Token: type=[ID], attr=[continue], at line 45
+Token: type=[;], attr=[], at line 45
+Token: type=[ID], attr=[while], at line 46
+Token: type=[;], attr=[], at line 46
+Token: type=[ID], attr=[prints], at line 47
+Token: type=[;], attr=[], at line 47
+Token: type=[ID], attr=[printi], at line 48
+Token: type=[;], attr=[], at line 48
+Token: type=[ID], attr=[printb], at line 49
+Token: type=[;], attr=[], at line 49
+Token: type=[ID], attr=[printc], at line 50
+Token: type=[;], attr=[], at line 50
+Token: type=[ID], attr=[halt], at line 51
+Token: type=[;], attr=[], at line 51
+Token: type=[ID], attr=[getchar], at line 52
+Token: type=[;], attr=[], at line 52
+Token: type=[ID], attr=[true], at line 53
+Token: type=[;], attr=[], at line 53
+Token: type=[ID], attr=[bool], at line 54
+Token: type=[;], attr=[], at line 54
+Token: type=[ID], attr=[false], at line 55
+Token: type=[;], attr=[], at line 55
+Token: type=[ID], attr=[string], at line 56
+Token: type=[;], attr=[], at line 56
+Token: type=[ID], attr=[int], at line 57
+Token: type=[;], attr=[], at line 57
+Token: type=[ID], attr=[main], at line 58
+Token: type=[;], attr=[], at line 58
+Token: type=[ID], attr=[abcdef], at line 59
+Token: type=[;], attr=[], at line 59
+Token: type=[ID], attr=[abc123], at line 60
+Token: type=[;], attr=[], at line 60
+Token: type=[ID], attr=[_], at line 61
+Token: type=[;], attr=[], at line 61
+Token: type=[ID], attr=[_abc_0], at line 62
+Token: type=[;], attr=[], at line 62
+Token: type=[ID], attr=[_42], at line 63
+Token: type=[;], attr=[], at line 63
+Token: type=[INTEGER], attr=[0], at line 67
+Token: type=[;], attr=[], at line 67
+Token: type=[INTEGER], attr=[12345678901234567890], at line 68
+Token: type=[;], attr=[], at line 68
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-break at EOF |
+---------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t16
+
+STDOUT:
+Token: type=[KEYWORD], attr=[break], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-return at EOF |
+----------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t17
+
+STDOUT:
+Token: type=[KEYWORD], attr=[return], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-id at EOF |
+------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t18
+
+STDOUT:
+Token: type=[ID], attr=[asdf], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-number at EOF |
+----------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t19
+
+STDOUT:
+Token: type=[INTEGER], attr=[12345], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-string at EOF |
+----------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t20
+
+STDOUT:
+Token: type=[STRING], attr=[asdf], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-) at EOF |
+-----------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t21
+
+STDOUT:
+Token: type=[)], attr=[)], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: semicolon insertion post-} at EOF |
+-----------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t22
+
+STDOUT:
+Token: type=[}], attr=[}], at line 2
+Token: type=[;], attr=[], at line 2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: string ending in EOF |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t23
+
+STDOUT:
+
+
+STDERR:
+Error: String terminated by end-of-file, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: partial string containing newline |
+-----------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t24
+
+STDOUT:
+
+
+STDERR:
+Error: String contains newline character, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: string containing newline |
+---------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t25
+
+STDOUT:
+
+
+STDERR:
+Error: String contains newline character, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: unescaped double quote in string |
+----------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t26
+
+STDOUT:
+Token: type=[STRING], attr=[abc], at line 2
+
+
+STDERR:
+Error: Unescaped double-quote in string, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: string escape at EOF |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t27
+
+STDOUT:
+
+
+STDERR:
+Error: String terminated by EOF, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: string escape then newline |
+----------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t28
+
+STDOUT:
+
+
+STDERR:
+Error: String terminated by newline, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: legal strings |
+---------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t29
+
+STDOUT:
+Token: type=[STRING], attr=[abc], at line 3
+Token: type=[;], attr=[], at line 3
+Token: type=[STRING], attr=[ab\t\ndef], at line 4
+Token: type=[;], attr=[], at line 4
+Token: type=[STRING], attr=[ab\"cd], at line 5
+Token: type=[;], attr=[], at line 5
+Token: type=[STRING], attr=[ab\\\"cd], at line 6
+Token: type=[;], attr=[], at line 6
+Token: type=[STRING], attr=[a\b\r\fcd], at line 7
+Token: type=[;], attr=[], at line 7
+Token: type=[STRING], attr=[abc'def], at line 8
+Token: type=[;], attr=[], at line 8
+Token: type=[STRING], attr=[abc
+def], at line 9
+Token: type=[;], attr=[], at line 9
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: illegal "x" string escape |
+---------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t30
+
+STDOUT:
+
+
+STDERR:
+Error: Illegal escape character \x, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: illegal "a" string escape |
+---------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t31
+
+STDOUT:
+
+
+STDERR:
+Error: Illegal escape character \a, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: illegal "u" string escape |
+---------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms1/scan.t32
+
+STDOUT:
+
+
+STDERR:
+Error: Illegal escape character \u, at or near line 3
+
+
+RETURN CODE: 1
+
+Run ended on Fri Feb  3 19:06:44 2023
+
