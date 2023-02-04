@@ -7,10 +7,15 @@
 /// scanner.cpp and print the tokens to standart output.
 /// The implementation is based off Dr. Aycock's example code 
 /// in python, shown in the video series "Calculator demo video 
-/// series" under "Other resources" on the CPSC 411 d2l page.
+/// series" under "Other resources" on the CPSC 411 d2l page:
+/// https://youtu.be/NcIhZ_6l3T8
 ///
 /// This implementation is written purely in C++, without the use
 /// of tools (lex, flex, etc)
+///
+/// FOR MILESTONE 1:
+///     The main function prints the contents of each token to standard output.
+///     the syntax is: Token: type=[token's type], attr=[token's attribute], at line [token's line #]
 
 #include <stdio.h>
 #include <iostream>

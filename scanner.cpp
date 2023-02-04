@@ -6,7 +6,8 @@
 /// of the compiler scanner. Its methods are called by main.cpp.
 /// The implementation is based off  Dr. Aycock's example code 
 /// in python, as shown in the video series "Calculator demo video 
-/// series" under "Other resources" on the CPSC 411 d2l page.
+/// series" under "Other resources" on the CPSC 411 d2l page:
+/// https://youtu.be/NcIhZ_6l3T8 
 ///
 
 #include "token.hpp"
@@ -106,7 +107,10 @@ bool islegalescape(char ch){
 //the file and performs operations to detect if it is a legal
 //token (returns that token), requires a warning (prints to standard error), 
 //requires an error (prints to standard error and exits), or should be ignored.
-//If reread has been set to true, simply returns the last calculated token
+//If reread has been set to true, simply returns the last calculated token. If
+//ins_semi is set to true, outputs a semi-colon with no attribute as the next token.
+//Please see token.cpp for a description of the token class. Some of the logic of this function
+//is based on Dr. Aycock's python example video (link is in the description at the top of this file)
 Token Scanner::lex(){
 
     //check for reread from unlex()
@@ -125,7 +129,10 @@ Token Scanner::lex(){
         file.unget();
     }
 
-
+    //main loop. Note that while this is an infinite loop,
+    //it always terminates after successfully creating 1 token,
+    //and so must be called repeatedly from another file to scan
+    //an entire file (see main.cpp)
     while(true){
         char ch = file.get();
 
@@ -279,7 +286,8 @@ Token Scanner::lex(){
                 maybe_semi = true;
             }
             
-        //check for strings and string errors    
+        //check for strings and string errors based on illegal escapes, illegal characters,
+        //bad terminations, or unescaped double-quotes  
         } else if(ch == '"'){
             ch = file.get();
             std::string string = "";
@@ -314,7 +322,7 @@ Token Scanner::lex(){
             lastoken = Token("STRING",string,line);
             maybe_semi = true;
 
-        //unrecognized characters
+        //all other unrecognized characters
         } else {
             logger->warning("Skipping unrecognized character",line);
             continue;

@@ -10,7 +10,16 @@
 
 //Token constructor
 //
-//string type: the type of token as outlined in the GoLF specs
+//string type: the type of token as outlined in the GoLF specs. Current types are:
+//  INTEGER: Number
+//  STRING: Strings
+//  ID: Identifier
+//  KEYWORD: A reserved keyword
+//  EOF: End of file
+//  All other types are identical to their attribute (ex: '{' has type "{")
+//
+//Note: an "empty" token is initialized with an empty string for name and lexeme,
+//and where = 0 
 //
 //string attr: the lexeme, or an empty string when there is no lexeme
 //
