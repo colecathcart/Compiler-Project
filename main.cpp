@@ -39,7 +39,14 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-
+    //for testing of scanner
+    Scanner scanner = Scanner(file);
+    Token returntoken = scanner.lex();
+    while(returntoken.type != "EOF"){
+        printf("Token: type=[%s], attr=[%s], at line %d\n",returntoken.type.c_str(), returntoken.attr.c_str(), returntoken.line);
+        returntoken = scanner.lex();
+        
+    }
 
     file.close();
 

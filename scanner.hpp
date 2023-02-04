@@ -24,6 +24,7 @@ class Scanner
         int line;
         bool ins_semi;
         bool maybe_semi;
+        bool open_bracket;
 
 };
 

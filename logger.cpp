@@ -57,7 +57,7 @@ void Logger::error(std::string msg, int line){
 void Logger::warnchecker(){
 
     warnings++;
-    if(warnings == 10){
+    if(warnings > 10){
         error("Too many warnings!");
     }
 

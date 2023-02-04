@@ -30,12 +30,17 @@
 //
 //bool maybe_semi: boolean set by lex() to aid in deciding value of ins_semi
 //
+//
+//bool open_bracket: boolean set to determine when it might be permissible to add a ';' before
+//  a closing bracket '}', set to true if the scanner encounters a '{'
+//
 Scanner::Scanner(std::ifstream &f) : reread{false}, lastoken{"","",0}, file{f} {
 
     logger = Logger::getLogger();
     line = 1;
     ins_semi = false;
     maybe_semi = false;
+    open_bracket = false;
 
 }
 
@@ -47,14 +52,6 @@ bool iswhitespace(char ch){
     }
     return false;
 
-}
-
-//helper function to check for non-ascii characters
-bool isnotascii(char ch){
-    if(ch > 127){
-        return true;
-    }
-    return false;
 }
 
 //helper function that checks for operators and punctuation that are not 
@@ -141,9 +138,10 @@ Token Scanner::lex(){
         //check for eof
         }else if(ch == EOF){
             lastoken = Token("EOF", "EOF", line);
+            open_bracket = false;
             
         //check for non-ascii characters
-        }else if(isnotascii(ch)){
+        }else if(!isascii(ch)){
             logger->warning("Skipping non-ASCII character",line);
             continue;
 
@@ -161,10 +159,19 @@ Token Scanner::lex(){
 
         //check for singletons
         } else if(issingleton(ch)){
-            std::string s(1,ch);
-            lastoken = Token(s, s, line);
-            if(ch == '}' || ch == ')'){
-                maybe_semi = true;
+            if(ch == '}' && open_bracket){
+                open_bracket = false;
+                lastoken = Token(";","",line);
+                file.unget();
+            }else {
+                std::string s(1,ch);
+                lastoken = Token(s, s, line);
+                if(ch == ')' || ch == '}'){
+                    maybe_semi = true;
+                }
+                if(ch == '{'){
+                    open_bracket = true;
+                }
             }
 
         //check for '!' or '!='
@@ -286,12 +293,19 @@ Token Scanner::lex(){
                 if(ch == '\\'){
                     char secondchar = file.get();
                     if(!islegalescape(secondchar)){
-                        std::string badchar(1,ch);
-                        std::string escaperr = "Illegal escape character " + badchar;
-                        logger->error(escaperr);
+                        if(secondchar == '\n'){
+                            logger->error("String terminated by newline",line);
+                        }
+                        if(secondchar == EOF){
+                            logger->error("String terminated by EOF",line);
+                        }
+                        std::string badchar(1,secondchar);
+                        std::string escaperr = "Illegal escape character \\" + badchar;
+                        logger->error(escaperr,line);
                     }
                     string.push_back(ch);
                     string.push_back(secondchar);
+                    ch = file.get();
                 } else {
                     string.push_back(ch);
                     ch = file.get();
@@ -306,6 +320,7 @@ Token Scanner::lex(){
             continue;
         }
         return lastoken;
+
     }
     //SHOULD NEVER BE REACHED
     return Token("","",0);
