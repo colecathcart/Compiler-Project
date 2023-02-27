@@ -166,10 +166,16 @@ Token Scanner::lex(){
 
         //check for singletons
         } else if(issingleton(ch)){
-            if(ch == '}' && open_bracket){
+            if(ch == '}'){
                 open_bracket = false;
-                lastoken = Token(";","",line);
-                file.unget();
+                if(lastoken.type != ";" && lastoken.type != ""){
+                    lastoken = Token(";","",line);
+                    file.unget();
+                }else {
+                    std::string s(1,ch);
+                    lastoken = Token(s, s, line);
+                    maybe_semi = true;
+                }
             }else {
                 std::string s(1,ch);
                 lastoken = Token(s, s, line);
