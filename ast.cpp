@@ -7,3 +7,6 @@ Ast::Ast(std::string type, std::string attr, int where){
     where = where;
 }
 
+Ast::Ast(std::string type){
+    type = type;
+}
