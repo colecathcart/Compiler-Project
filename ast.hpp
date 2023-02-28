@@ -8,6 +8,9 @@ class Ast
 {
     public:
         Ast(std::string type, std::string attr, int where);
+        std::string type;
+        std::string attr;
+        int where;
         std::vector<Ast> children;
 };
 
