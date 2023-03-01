@@ -22,6 +22,24 @@
 #include <fstream>
 #include "scanner.hpp"
 #include "logger.hpp"
+#include "parser.hpp"
+#include "ast.hpp"
+
+//utility function to print out ast for ms2
+void astprinter(Ast ast, std::string tab){
+    std::string ast_str = tab + ast.type;
+    if (!ast.attr.empty()){
+        ast_str += " [" + ast.attr + "]";
+    }
+
+    if (ast.where > 0){
+        ast_str += " @ line " + std::to_string(ast.where);
+    }
+    printf("%s\n",ast_str.c_str());
+    for(auto child : ast.children){
+        astprinter(child, tab + "\t");
+    }
+}
 
 int main(int argc, char* argv[]){
 
@@ -45,6 +63,7 @@ int main(int argc, char* argv[]){
     }
 
     //for testing of scanner
+    /*
     Scanner scanner = Scanner(file);
     Token returntoken = scanner.lex();
     while(returntoken.type != "EOF"){
@@ -52,6 +71,13 @@ int main(int argc, char* argv[]){
         returntoken = scanner.lex();
         
     }
+    */
+
+    //for testing of parser
+    Scanner scanner = Scanner(file);
+    Parser parser = Parser(scanner);
+    Ast ast = parser.parse();
+    astprinter(ast, "");
 
     file.close();
 

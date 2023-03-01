@@ -7,8 +7,8 @@
 class Ast
 {
     public:
-        Ast(std::string type, std::string attr, int where);
-        Ast(std::string type);
+        Ast(std::string type_, std::string attr_, int where_);
+        Ast(std::string type_);
         std::string type;
         std::string attr = "";
         int where = -1;

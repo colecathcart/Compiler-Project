@@ -87,7 +87,7 @@ Ast Parser::func(){
     Token id = expect("ID");
     func.children.push_back(Ast{"newid",id.attr,id.line});
     expect("(");
-    Ast formals = Ast("formals","",id.line);
+    Ast formals = Ast("formals");
     Token next = scanner_.lex();
     while(next.type == "ID") {
         Token type = expect("ID");
@@ -97,9 +97,12 @@ Ast Parser::func(){
             break;
         }
         next = scanner_.lex();
-        if(next.type != "ID"){
+        if(next.type != "ID" && next.type != ";" && next.type != ")"){
             logger->error("Missing formal", next.line);
         }
+    }
+    if(next.type == ";"){
+        next = scanner_.lex();
     }
     if(next.type != ")"){
         logger->error("Improper function signature", next.line);
@@ -112,8 +115,8 @@ Ast Parser::func(){
     }
     func.children.push_back(sig(formals, returntype));
     if(next.type != "{"){
-        std::string errmsg = "Expected '{', got " + next.type;
-        logger->error(errmsg, next.line);
+        //std::string errmsg = "Expected '{', got " + next.type;
+        logger->error("Unexpected newline", next.line);
     }
     func.children.push_back(block());
     return func;
