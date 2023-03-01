@@ -3,8 +3,8 @@
 /// Feb 3, 2023
 ///
 /// This is the main method which acts as the driver of the compiler
-/// program. Currently its only function is to call the methods from
-/// scanner.cpp and print the tokens to standart output.
+/// program. Currently its only function is to call the method 'parse()' from
+/// parser.cpp and print a textual representation of the AST to standart output.
 /// The implementation is based off Dr. Aycock's example code 
 /// in python, shown in the video series "Calculator demo video 
 /// series" under "Other resources" on the CPSC 411 d2l page:
@@ -13,9 +13,9 @@
 /// This implementation is written purely in C++, without the use
 /// of tools (lex, flex, etc)
 ///
-/// FOR MILESTONE 1:
+/// FOR MILESTONE 2:
 ///     The main function prints the contents of each token to standard output.
-///     the syntax is: Token: type=[token's type], attr=[token's attribute], at line [token's line #]
+///     the syntax is: <node type> [<node attribute, if applicable>] @ line <line#, is applicable>
 
 #include <stdio.h>
 #include <iostream>

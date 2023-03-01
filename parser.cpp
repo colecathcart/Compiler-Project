@@ -1,3 +1,15 @@
+/// CPSC 411 Term Project: Scanner Class
+/// Cole Cathcart, 30043556
+/// Feb 28, 2023
+///
+/// This is the parser class which contains all the functionality
+/// of the compiler parser. Its methods are called by main.cpp.
+/// The implementation is based off  Dr. Aycock's example code 
+/// in python, as shown in the video series "Calculator demo video 
+/// series" under "Other resources" on the CPSC 411 d2l page:
+/// https://youtu.be/NcIhZ_6l3T8 
+///
+
 #include "scanner.hpp"
 #include "token.hpp"
 #include "ast.hpp"
