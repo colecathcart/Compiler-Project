@@ -18,8 +18,10 @@ class Parser {
         Token expect(std::string expected);
         Ast var();
         Ast func();
+        Ast formal(Token &id, Token &type);
+        Ast sig(Ast &formals, Token &returntype);
+        Ast block();
         Ast declarations();
-        Ast statements();
         Ast declaration();
         Ast statement();
         Ast expression();

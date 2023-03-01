@@ -32,18 +32,19 @@ bool Parser::is_statement_start(Token s){
         s.attr == "var" 
         )){
         return true;
-    } //unfinished
-    return true;
+    } else if(s.type == "{" ||
+        s.type == ";" ||
+        s.type == "ID" ||
+        s.type == "INTEGER" ||
+        s.type == "STRING"){
+            return true;
+    }
+    return false;
 }
 
 Ast Parser::var(){
     Token id = expect("ID");
     Token type = expect("ID");
-
-    if(type.attr != "int" && type.attr != "bool" && type.attr != "string"){
-        std::string errmsg = "Expected int, bool, or string, got " + type.attr;
-        logger->error(errmsg, type.line);
-    }
 
     Ast var = Ast("var","",id.line);
     var.children.push_back(Ast{"newid",id.attr,id.line});
@@ -51,8 +52,69 @@ Ast Parser::var(){
     return var;
 }
 
-Ast Parser::func(){
+Ast Parser::formal(Token &id, Token &type){
+    Ast formal = Ast("formal");
+    formal.children.push_back(Ast{"newid",id.attr,id.line});
+    formal.children.push_back(Ast{"typeid",type.attr,type.line});
+    return formal;
+}
 
+Ast Parser::sig(Ast &formals, Token &returntype){
+    Ast sig = Ast("signature");
+    sig.children.push_back(formals);
+    sig.children.push_back(Ast{"typeid",returntype.attr,returntype.line});
+    return sig;
+}
+
+Ast Parser::block(){
+    Ast block = Ast("block");
+    Token next = scanner_.lex();
+    while(is_statement_start(next)){
+        scanner_.unlex();
+        block.children.push_back(statement());
+        next = scanner_.lex();
+    }
+    if(next.type != "}"){
+        logger->error("Missing closing bracket",next.line);
+    }
+    return block;
+}
+
+Ast Parser::func(){
+    Ast func = Ast("func");
+    Token id = expect("ID");
+    func.children.push_back(Ast{"newid",id.attr,id.line});
+    expect("(");
+    Ast formals = Ast("formals","",id.line);
+    Token next = scanner_.lex();
+    while(next.type == "ID") {
+        Token type = expect("ID");
+        formals.children.push_back(formal(next, type));
+        next = scanner_.lex();
+        if(next.type != ","){
+            break;
+        }
+        next = scanner_.lex();
+        if(next.type != "ID"){
+            logger->error("Missing formal", next.line);
+        }
+    }
+    if(next.type != ")"){
+        logger->error("Improper function signature", next.line);
+    }
+    next = scanner_.lex();
+    Token returntype = Token("void","void",-1);
+    if(next.type == "ID"){
+        returntype = next;
+        next = scanner_.lex();
+    }
+    func.children.push_back(sig(formals, returntype));
+    if(next.type != "{"){
+        std::string errmsg = "Expected '{', got " + next.type;
+        logger->error(errmsg, next.line);
+    }
+    func.children.push_back(block());
+    return func;
 }
 
 Ast Parser::parse(){
@@ -78,20 +140,12 @@ Ast Parser::declaration(){
     } else if(s.attr == "func"){
         return func();
     }
+    //should never reach
+    return Ast("","",0);
 }
     
-Ast Parser::statements(){
-    Ast ast = Ast("program");
-    while(is_statement_start(scanner_.lex())){
-        scanner_.unlex();
-        Ast child = statement();
-        ast.children.push_back(child);
-    }
-    scanner_.unlex();
-    return ast;
-}
 Ast Parser::statement(){
-
+    Token next = scanner_.lex();
 }
 Ast Parser::expression(){
 
