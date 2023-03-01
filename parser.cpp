@@ -45,6 +45,7 @@ bool Parser::is_statement_start(Token s){
 Ast Parser::var(){
     Token id = expect("ID");
     Token type = expect("ID");
+    expect(";");
 
     Ast var = Ast("var","",id.line);
     var.children.push_back(Ast{"newid",id.attr,id.line});
@@ -77,6 +78,7 @@ Ast Parser::block(){
     if(next.type != "}"){
         logger->error("Missing closing bracket",next.line);
     }
+    expect(";");
     return block;
 }
 
@@ -143,10 +145,48 @@ Ast Parser::declaration(){
     //should never reach
     return Ast("","",0);
 }
+
+Ast Parser::ifstmt(){
+    return Ast{"if"};
+}
+
+Ast Parser::forstmt(){
+    return Ast{"for"};
+}
     
 Ast Parser::statement(){
     Token next = scanner_.lex();
+    if(next.type == "KEYWORD"){
+        if(next.attr == "break"){
+            expect(";");
+            return Ast{"break","",next.line};
+        } else if(next.attr == "return"){
+            Ast retstmt = Ast("return","",next.line);
+            next = scanner_.lex();
+            if(is_expression_start(next)){
+                retstmt.children.push_back(expression());
+            }
+            expect(";");
+            return retstmt;
+        } else if(next.attr == "if"){
+            return ifstmt();
+        } else if(next.attr == "for"){
+            return forstmt();
+        }
+    } else if(next.type == ";"){
+        return Ast{"emptystmt"};
+    } else if(next.type == "{"){
+        return block();
+    } else if(is_expression_start(next)){
+        return expression();
+    }
+    return Ast{""};
 }
-Ast Parser::expression(){
 
+bool Parser::is_expression_start(Token s){
+    return true;
+}
+
+Ast Parser::expression(){
+    return Ast{"expr"};
 }

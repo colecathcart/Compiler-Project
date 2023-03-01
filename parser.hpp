@@ -25,8 +25,11 @@ class Parser {
         Ast declaration();
         Ast statement();
         Ast expression();
+        Ast ifstmt();
+        Ast forstmt();
         bool is_statement_start(Token s);
         bool is_declaration_start(Token s);
+        bool is_expression_start(Token s);
         
 };
 
