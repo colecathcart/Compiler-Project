@@ -61,6 +61,8 @@ bool Parser::is_statement_start(Token s){
         s.type == "INTEGER" ||
         s.type == "STRING"){
             return true;
+    } else if(is_expression_start(s)){
+        return true;
     }
     return false;
 }
@@ -93,17 +95,27 @@ Ast Parser::sig(Ast &formals, Token &returntype){
 Ast Parser::block(){
     Ast block = Ast("block");
     Token next = scanner_.lex();
-    if(next.attr == "}"){
-        return block;
+    if(next.type == ";"){
+        Token t = scanner_.lex();
+        if(t.type == "}"){
+            block.children.push_back(Ast{"emptystmt"});
+            return block;
+        } else {
+            scanner_.unlex();
+        }
     }
     while(is_statement_start(next)){
         scanner_.unlex();
-        block.children.push_back(statement());
-        expect(";");
+        Ast s = statement();
+        //printf("Node: %s\n",s.type.c_str());
+        block.children.push_back(s);
+        //expect(";");
         next = scanner_.lex();
     }
     if(next.type != "}"){
-        logger->error("Missing closing bracket",next.line);
+        //logger->error("Missing closing bracket",next.line);
+        std::string errmsg = "Expected }, got " + next.type ;
+        logger->error(errmsg, next.line);
     }
     //expect(";");
     return block;
@@ -129,7 +141,8 @@ Ast Parser::func(){
         }
     }
     if(next.type == ";"){
-        next = scanner_.lex();
+        //next = scanner_.lex();
+        logger->error("Unexpected newline", next.line);
     }
     if(next.type != ")"){
         logger->error("Improper function signature", next.line);
@@ -193,6 +206,7 @@ Ast Parser::ifstmt(){
         if(t.attr == "if"){
             els.children.push_back(ifstmt());
         } else {
+            scanner_.unlex();
             expect("{");
             els.children.push_back(block());
         }
@@ -224,17 +238,20 @@ Ast Parser::statement(){
     Token next = scanner_.lex();
     if(next.type == "KEYWORD"){
         if(next.attr == "break"){
-            expect(";");
+            //expect(";");
             return Ast{"break","",next.line};
         } else if(next.attr == "return"){
             Ast retstmt = Ast("return","",next.line);
             next = scanner_.lex();
             if(is_expression_start(next)){
-                retstmt.children.push_back(expression());
+                scanner_.unlex();
+                Ast e = expression();
+                //printf("%s\n", e.type.c_str());
+                retstmt.children.push_back(e);
             } else {
                 scanner_.unlex();
             }
-            expect(";");
+            //expect(";");
             return retstmt;
         } else if(next.attr == "if"){
             return ifstmt();
@@ -243,8 +260,8 @@ Ast Parser::statement(){
         } else if(next.attr == "var"){
             return var();
         }
-    } else if(next.type == ";"){
-        scanner_.unlex();
+    } else if(next.type == ";" && next.attr  == ";"){
+        //scanner_.unlex();
         return Ast{"emptystmt"};
     } else if(next.type == "{"){
         return block();
@@ -278,7 +295,7 @@ Ast Parser::singlexpr(){
     Token t = scanner_.lex();
     Ast expr = Ast("");
     if(t.attr == "-" || t.attr == "!"){
-        Ast unaryop = Ast(t.attr, "", t.line);
+        Ast unaryop = Ast("u"+t.attr, "", t.line);
         unaryop.children.push_back(expression());
         expr = unaryop;
     } else if(t.attr == "("){
@@ -287,7 +304,8 @@ Ast Parser::singlexpr(){
         exrop.children.push_back(operand);
         expect(")");
         t = scanner_.lex();
-        if(t.attr == "("){
+        //printf("%s\n",t.type.c_str());
+        if(t.type == "("){
             t = scanner_.lex();
             Ast args{"arguments"};
             while(is_expression_start(t)){
@@ -301,7 +319,7 @@ Ast Parser::singlexpr(){
             }
             scanner_.unlex();
             expect(")");
-            operand.children.push_back(args);
+            exrop.children.push_back(args);
         } else {
             scanner_.unlex();
         }
@@ -357,7 +375,6 @@ Ast Parser::singlexpr(){
 Ast Parser::expression(){
     Ast expr = singlexpr();
     Token t = scanner_.lex();
-    Ast maybe_bo = Ast(t.type,t.attr,t.line);
     std::vector<Ast> nodes;
     while(isbinoperator(t.type)){
         nodes.push_back(expr);
@@ -372,18 +389,16 @@ Ast Parser::expression(){
 
 Ast Parser::expressiontree(std::vector<Ast> nodes){
     //printf("Size: %ld\n",nodes.size());
-    /*
-    printf("Nodes:\n");
-    for(auto i : nodes){
-        printf("%s\n", i.attr.c_str());
+    
+    if(nodes.size() < 1){
+        return Ast{""};
     }
-    */
     if(nodes.size() < 2){
         return nodes[0];
     }
     int lowest_p = 0;
     for(int i = 0; i < (int)nodes.size(); i++){
-        if(precedence(nodes[i].type) < precedence(nodes[lowest_p].type)){
+        if(precedence(nodes[i].type) <= precedence(nodes[lowest_p].type)){
             lowest_p = i;
         }
     }
@@ -426,6 +441,5 @@ int Parser::precedence(std::string op){
     } else if (op == "||"){
         return 1;
     }
-    //should never reach
     return 6;
 }
