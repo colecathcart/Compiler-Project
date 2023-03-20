@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+//Header file for ast.cpp, please see that file for
+//descriptions of methods and variables
 class Ast
 {
     public:

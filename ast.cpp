@@ -10,12 +10,23 @@
 #include "token.hpp"
 #include "ast.hpp"
 
+//Default constructor
+//
+//std::string type_: The type of this AST node
+//
+//std::string attr_: The attribute of this AST node (if applicable)
+//
+//int where: The line number of this node
+//
+//std::vector<Ast> children: a public list of all children of this node
+//
 Ast::Ast(std::string type_, std::string attr_, int where_){
     type = type_;
     attr = attr_;
     where = where_;
 }
 
+//Alternate constructor
 Ast::Ast(std::string type_){
     type = type_;
 }
