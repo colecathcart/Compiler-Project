@@ -14,7 +14,8 @@ class Checker {
 
     private:
         void maincheck();
-        void returncheck(Ast &func, bool retunsval, std::string type);
+        int returncheck(Ast &func, bool retunsval, std::string type);
+        void funccheck();
         Ast &ast_;
         Logger *logger = nullptr;
 

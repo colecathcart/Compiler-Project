@@ -28,21 +28,25 @@ Checker::Checker(Ast &ast) : ast_{ast}{
 //will throw errors directly and returns no value
 Ast Checker::check(){
     maincheck();
+    funccheck();
     return ast_;
 }
 
-//Function that handles semantic checking 
-//for main-related errors
+//Function that handles semantic checking for
+//main-related errors
 void Checker::maincheck(){
     int hasmain = 0;
+    bool ismainfunc = false;
     for(auto i : ast_.children){
         if(i.type == "func"){
             for(auto j : i.children){
                 if(j.type == "newid" && j.attr == "main"){
                     hasmain++;
+                    ismainfunc = true;
                     returncheck(i,false,"");
                 }
-                if(j.type == "signature"){
+                if(j.type == "signature" && ismainfunc){
+                    ismainfunc = false;
                     if(j.children[0].children.size() > 0){
                         logger->error("Main function cannot have arguments");
                     }
@@ -60,17 +64,43 @@ void Checker::maincheck(){
     }
 }
 
+//Function that handles semantic checking for
+//function-related errors
+void Checker::funccheck(){
+    for(auto i : ast_.children){
+        if(i.type == "func"){
+            if(i.children[1].children[1].attr == "void"){
+                returncheck(i, false, "");
+            } else {
+                int a = returncheck(i, true, i.children[1].children[1].attr);
+                if(a < 1){
+                    logger->error("Function with return type never returns");
+                }
+            }
+        }
+    }
+}
+
 //Function for recursively checking return values inside a function. The 
 //second argument is false if return statements should be void, in
-//which case the third argument is ignored
-void Checker::returncheck(Ast &func, bool returnsval, std::string type){
+//which case the third argument is ignored. Returns the number of returns found
+//in "func"
+int Checker::returncheck(Ast &func, bool returnsval, std::string type){
+    int hasreturn = 0;
     for(auto i : func.children){
         if(i.type == "return"){
+            hasreturn++;
             if(returnsval){
+                bool correctretval = false;
                 for(auto j : i.children){
-                    if(j.type != type){
+                    if(j.type != type && j.type != ""){
                         logger->error("Return type does not match function signature",j.where);
+                    } else if(j.type == type){
+                        correctretval = true;
                     }
+                }
+                if(!correctretval){
+                    logger->error("Return type does not match function signature",i.where);
                 }
             } else {
                  for(auto j : i.children){
@@ -82,5 +112,10 @@ void Checker::returncheck(Ast &func, bool returnsval, std::string type){
         } else {
             returncheck(i, returnsval, type);
         }
+    }
+    if(returnsval){
+        return hasreturn;
+    } else {
+        return 1;
     }
 }
