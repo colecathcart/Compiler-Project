@@ -29,6 +29,7 @@ Checker::Checker(Ast &ast) : ast_{ast}{
 Ast Checker::check(){
     maincheck();
     funccheck();
+    breakcheck(ast_);
     return ast_;
 }
 
@@ -69,6 +70,9 @@ void Checker::maincheck(){
 void Checker::funccheck(){
     for(auto i : ast_.children){
         if(i.type == "func"){
+
+            //TODO: Handle function signature checking
+
             if(i.children[1].children[1].attr == "void"){
                 returncheck(i, false, "");
             } else {
@@ -93,6 +97,9 @@ int Checker::returncheck(Ast &func, bool returnsval, std::string type){
             if(returnsval){
                 bool correctretval = false;
                 for(auto j : i.children){
+
+                    //TODO: May need to handle expressions
+
                     if(j.type != type && j.type != ""){
                         logger->error("Return type does not match function signature",j.where);
                     } else if(j.type == type){
@@ -117,5 +124,18 @@ int Checker::returncheck(Ast &func, bool returnsval, std::string type){
         return hasreturn;
     } else {
         return 1;
+    }
+}
+
+//Function for recursively checking for break statements
+//outside of 'for' loops. Assumes the first AST called on
+//is not itself a 'for' loop
+void Checker::breakcheck(Ast &tree){
+    for(auto i : tree.children){
+        if(i.type == "break"){
+            logger->error("Break statement found outside of for-loop",i.where);
+        } else if(i.type != "for"){
+            breakcheck(i);
+        }
     }
 }
