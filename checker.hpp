@@ -17,6 +17,7 @@ class Checker {
         int returncheck(Ast &func, bool retunsval, std::string type);
         void breakcheck(Ast &tree);
         void funccheck();
+        void const_and_rangecheck(Ast &tree);
         Ast &ast_;
         Logger *logger = nullptr;
 

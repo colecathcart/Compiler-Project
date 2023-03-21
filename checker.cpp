@@ -30,6 +30,9 @@ Ast Checker::check(){
     maincheck();
     funccheck();
     breakcheck(ast_);
+    const_and_rangecheck(ast_);
+    //call assignment checker first
+
     return ast_;
 }
 
@@ -137,5 +140,50 @@ void Checker::breakcheck(Ast &tree){
         } else if(i.type != "for"){
             breakcheck(i);
         }
+    }
+}
+
+//Function for recursively checking for assignments
+//to const values. Assumes that the first AST called on
+//is not an assignment
+void Checker::const_and_rangecheck(Ast &tree){
+    for(auto i : tree.children){
+
+        //TODO: Check for assignment type mismatch
+        //TODO: Check for assignment to non-predeclared variable
+
+        if(i.type == "="){
+            if(i.children[0].type == "INTEGER" || 
+                i.children[0].type == "STRING"  ||
+                (i.children[0].type == "ID" && (i.children[0].attr == "true" || i.children[0].attr == "false"))){
+                logger->error("Can't assign to a constant",i.where);
+            }
+            if(i.children[0].type == "ID"){
+                if(i.children[1].type == "INTEGER"){
+                    std::string num = i.children[1].attr;
+                    if(num.size() > 10){
+                        logger->error("Integer literal out of range",i.where);
+                    } else {
+                        long numb = std::stol(num);
+                        if(numb > 2147483647){
+                            logger->error("Integer literal out of range",i.where);
+                        }
+                    }
+                }else if(i.children[1].type == "u-"){
+                    std::string num = i.children[1].children[0].attr;
+                    if(num.size() > 10){
+                        logger->error("Integer literal out of range",i.where);
+                    } else {
+                        long numb = std::stol(num);
+                        if(numb > 2147483648){
+                            logger->error("Integer literal out of range",i.where);
+                        }
+                    }
+                }
+            } else {
+                logger->error("Can only assign to a variable",i.where);
+            }
+        }
+        const_and_rangecheck(i);
     }
 }
