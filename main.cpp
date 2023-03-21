@@ -24,6 +24,7 @@
 #include "logger.hpp"
 #include "parser.hpp"
 #include "ast.hpp"
+#include "checker.hpp"
 
 //utility function to print out ast for ms2
 void astprinter(Ast ast, std::string tab){
@@ -74,11 +75,20 @@ int main(int argc, char* argv[]){
     */
 
     //for testing of parser
+    /*
     Scanner scanner = Scanner(file);
     Parser parser = Parser(scanner);
     Ast ast = parser.parse();
     astprinter(ast, "");
+    */
 
+    //for testing of semantic checker
+    Scanner scanner = Scanner(file);
+    Parser parser = Parser(scanner);
+    Ast ast = parser.parse();
+    Checker checker = Checker(ast);
+    ast = checker.check();
+    astprinter(ast, "");
     file.close();
 
 }

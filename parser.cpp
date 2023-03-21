@@ -67,6 +67,7 @@ bool Parser::is_statement_start(Token s){
     return false;
 }
 
+//Handler for var declarations. Assumes the "var" keyword was previously found
 Ast Parser::var(){
     Token id = expect("ID");
     Token type = expect("ID");
@@ -78,6 +79,7 @@ Ast Parser::var(){
     return var;
 }
 
+//Handler for function parameters, AKA formals
 Ast Parser::formal(Token &id, Token &type){
     Ast formal = Ast("formal");
     formal.children.push_back(Ast{"newid",id.attr,id.line});
@@ -85,6 +87,7 @@ Ast Parser::formal(Token &id, Token &type){
     return formal;
 }
 
+//Handler for function signature
 Ast Parser::sig(Ast &formals, Token &returntype){
     Ast sig = Ast("signature");
     sig.children.push_back(formals);
@@ -92,6 +95,7 @@ Ast Parser::sig(Ast &formals, Token &returntype){
     return sig;
 }
 
+//Handler for blocks. Assumes the '{' open-brace was previously found
 Ast Parser::block(){
     Ast block = Ast("block");
     Token next = scanner_.lex();
@@ -121,6 +125,7 @@ Ast Parser::block(){
     return block;
 }
 
+//Handler for function declarations
 Ast Parser::func(){
     Token id = expect("ID");
     Ast func = Ast("func", "", id.line);
@@ -162,11 +167,13 @@ Ast Parser::func(){
     return func;
 }
 
+//Top-level function called to parse the entire input file
 Ast Parser::parse(){
     Ast ast = declarations();
     return ast;
 }
 
+//Handler for top-level declarations
 Ast Parser::declarations(){
     Ast ast = Ast("program");
     while(is_declaration_start(scanner_.lex())){
@@ -178,10 +185,10 @@ Ast Parser::declarations(){
         }
     }
     scanner_.unlex();
-    //printf("Last token was: %s\n", scanner_.lex().type.c_str());
     return ast;
 }
 
+//Handler for a single declaration
 Ast Parser::declaration(){
     Token s = scanner_.lex();
     if(s.attr == "var"){
@@ -193,6 +200,7 @@ Ast Parser::declaration(){
     return Ast("","",0);
 }
 
+//Handler for if statements. Assumes the "if" keyword was previously found
 Ast Parser::ifstmt(){
     Ast expr = expression();
     Ast if_ = Ast("if","",expr.where);
@@ -217,6 +225,7 @@ Ast Parser::ifstmt(){
     return if_;
 }
 
+////Handler for for statements. Assumes the "for" keyword was previously found
 Ast Parser::forstmt(){
     Token t = scanner_.lex();
     Ast for_ = Ast("for","",t.line);
@@ -233,7 +242,8 @@ Ast Parser::forstmt(){
     for_.children.push_back(block_);
     return for_;
 }
-    
+
+//Handler for a single statement
 Ast Parser::statement(){
     Token next = scanner_.lex();
     if(next.type == "KEYWORD"){
@@ -246,7 +256,6 @@ Ast Parser::statement(){
             if(is_expression_start(next)){
                 scanner_.unlex();
                 Ast e = expression();
-                //printf("%s\n", e.type.c_str());
                 retstmt.children.push_back(e);
             } else {
                 scanner_.unlex();
@@ -282,6 +291,7 @@ Ast Parser::statement(){
     return Ast{""};
 }
 
+//Helper function to determine if this token is an expression start
 bool Parser::is_expression_start(Token s){
     if(s.attr == "!" || s.attr == "-" || s.attr == "("){
         return true;
@@ -291,6 +301,7 @@ bool Parser::is_expression_start(Token s){
     return false;
 }
 
+//Handler for a single expression not including binary-op expressions
 Ast Parser::singlexpr(){
     Token t = scanner_.lex();
     Ast expr = Ast("");
@@ -304,7 +315,6 @@ Ast Parser::singlexpr(){
         exrop.children.push_back(operand);
         expect(")");
         t = scanner_.lex();
-        //printf("%s\n",t.type.c_str());
         if(t.type == "("){
             t = scanner_.lex();
             Ast args{"arguments"};
@@ -372,6 +382,7 @@ Ast Parser::singlexpr(){
     return expr;
 }
 
+//Handler for expressions including binary-op expressions
 Ast Parser::expression(){
     Ast expr = singlexpr();
     Token t = scanner_.lex();
@@ -387,6 +398,8 @@ Ast Parser::expression(){
     return expressiontree(nodes);
 }
 
+//Helper function that returns an Ast with proper 
+//precedence of operators in a binary-op expression
 Ast Parser::expressiontree(std::vector<Ast> nodes){
     //printf("Size: %ld\n",nodes.size());
     
@@ -410,6 +423,7 @@ Ast Parser::expressiontree(std::vector<Ast> nodes){
     return top;
 }
 
+//Helper function to determine if this string is a binary operator
 int Parser::isbinoperator(std::string op){
     if(op == "*" ||
         op == "/" ||
@@ -429,6 +443,7 @@ int Parser::isbinoperator(std::string op){
         return false;
 }
 
+//Helper to determine the operator precedence level of this string
 int Parser::precedence(std::string op){
     if(op == "*" || op == "/" || op == "%"){
         return 5;
