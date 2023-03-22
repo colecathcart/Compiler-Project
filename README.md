@@ -1,6 +1,6 @@
 # CPSC411 Term Project
 Cole Cathcart, 30043556
-Feb 3, 2023
+March 21, 2023
 
 A C++ program which is a compiler for the 'GoLF' language. Currently, the scanner, parser, and semantic checker portions of the compiler are implemented. This program was written in C++ without the use of scanner generating tools. A short description of the program structure:
 - main.cpp: The driver of the program. Currently its only function is to open a file, call the main parser method and print its ast tree
