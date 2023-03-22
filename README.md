@@ -2,13 +2,18 @@
 Cole Cathcart, 30043556
 Feb 3, 2023
 
-A C++ program which is a compiler for the 'GoLF' language. Currently, only the scanner and parser portions of the compiler are implemented. This program was written in C++ without the use of scanner generating tools. A short description of the program structure:
+A C++ program which is a compiler for the 'GoLF' language. Currently, the scanner, parser, and semantic checker portions of the compiler are implemented. This program was written in C++ without the use of scanner generating tools. A short description of the program structure:
 - main.cpp: The driver of the program. Currently its only function is to open a file, call the main parser method and print its ast tree
 - scanner.cpp/scanner.hpp: The scanner. Contains functions to facilitate the scanning of an input file, the main of which is called 'lex()' and contains the majority of the scanning logic
 - logger.cpp/logger.hpp: Handles error and warning messages in order to have a central location for error handling. Implemented as a singleton pattern for ease of use
 - token.cpp/token.hpp: A class representing a token. An instance of Token contains the type, value and line number of a token
 - ast.cpp/ast.hpp: A class representing a custom datastructure for holding an abstract-syntax tree
-- parser.cpp/parser.hpp: The parser. Contains functions to facilitate the parsing of tokens received from the scaner. The main function is 'parse()' and is called once to parse an entire input file. The parser is **not fully implemented** (see milestone 2 self-eval) and will not yet print a correct ast 
+- parser.cpp/parser.hpp: The parser. Contains functions to facilitate the parsing of tokens received from the scaner. The main function is 'parse()' and is called once to parse an entire input file.
+- symbol.cpp/symbol.hpp: A class representing symbols to be used in the symbol table class. A symbol contains the name, signature, 
+scope level, and optional list of formals
+- stable.cpp/stable.hpp: A class representing a symbol table. Has functions for adding and looking up symbols, and handles errors
+related to redeclarations or missing declarations
+- checker.cpp/checker.hpp: A class that performs all semantic checking/editing on an AST. Called once from main. The semantic checker is **not fully implemented** (see milestone 3 self-eval) and does not give the correct output on some inputs.
 
 All references for these files are cited in the code where applicable
 
@@ -24,4 +29,5 @@ For convenience I have included a copy of my milestone 1 submission here (also s
 ## milestone 2 pdf
 For convenience I have included a copy of my milestone 2 submission here (also submitted on d2l)
 
-
+## milestone 3 pdf
+For convenience I have included a copy of my milestone 3 submission here (also submitted on d2l)
