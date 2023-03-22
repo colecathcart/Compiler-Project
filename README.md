@@ -23,11 +23,5 @@ A makefile has been included in the repo. To run the compiler, simply use the 'm
 ## run.output
 I have included a run.output file showing the output of the 'run' script on the latest build of this project. This file was generated from a copy of this repo on the cpsc linux servers
 
-## milestone 1 pdf
-For convenience I have included a copy of my milestone 1 submission here (also submitted on d2l)
-
-## milestone 2 pdf
-For convenience I have included a copy of my milestone 2 submission here (also submitted on d2l)
-
 ## milestone 3 pdf
 For convenience I have included a copy of my milestone 3 submission here (also submitted on d2l)
