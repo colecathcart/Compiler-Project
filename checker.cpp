@@ -14,6 +14,8 @@
 #include "token.hpp"
 #include "checker.hpp"
 #include "logger.hpp"
+#include "symbol.hpp"
+#include "stable.hpp"
 
 //Default constructor
 //
@@ -27,6 +29,8 @@ Checker::Checker(Ast &ast) : ast_{ast}{
 //the entire AST. Traverses the AST several times. Each sub-function called
 //will throw errors directly and returns no value
 Ast Checker::check(){
+    Stable s_table = Stable();
+    signaturize(ast_, s_table, 0);
     maincheck();
     funccheck();
     breakcheck(ast_);
@@ -147,11 +151,7 @@ void Checker::breakcheck(Ast &tree){
 //to const values. Assumes that the first AST called on
 //is not an assignment
 void Checker::const_and_rangecheck(Ast &tree){
-    for(auto i : tree.children){
-
-        //TODO: Check for assignment type mismatch
-        //TODO: Check for assignment to non-predeclared variable
-
+    for(auto &i : tree.children){
         if(i.type == "="){
             if(i.children[0].type == "INTEGER" || 
                 i.children[0].type == "STRING"  ||
@@ -186,4 +186,70 @@ void Checker::const_and_rangecheck(Ast &tree){
         }
         const_and_rangecheck(i);
     }
+}
+
+//Function to add signatures to all applicable nodes and manage the symbol table
+std::string Checker::signaturize(Ast &tree, Stable &table, int level){
+    if(tree.sig.empty()){
+        if(tree.type == "INTEGER"){
+            tree.sig = "int";
+        }else if(tree.type == "STRING"){
+            tree.sig = "string";
+        }else if(tree.type == "u-" || tree.type == "!"){
+            tree.sig = signaturize(tree.children[0],table,level);
+        }else if(tree.type == "ID" && (tree.attr == "true" || tree.attr == "false")){
+            tree.sig = "bool";
+        }else if(tree.type == "var"){
+            tree.sig = tree.children[1].attr;
+            if(!ispredeclared(tree.sig)){
+                table.lookup(tree.children[1]);
+            }
+            Symbol s = Symbol(tree.children[0].attr, tree.sig, level);
+            table.declare(tree,s,level);
+            table.lookup(tree.children[0]);
+        }else if(tree.type == "="){
+            tree.sig = signaturize(tree.children[0],table,level);
+            std::string check = signaturize(tree.children[1],table,level);
+            if(tree.sig != check){
+                logger->error("Assignment type mismatch",tree.where);
+            }
+        }else if(tree.type == "ID"){
+            if(!ispredeclared(tree.attr)){
+                Symbol s = table.lookup(tree);
+                tree.sig = s.sig;
+            }
+        }else if(tree.type == "==" || tree.type == "!=" || tree.type == "<=" || tree.type == ">=" ||
+                    tree.type == "<" || tree.type == ">" || tree.type == "&&" || tree.type == "||"){
+            tree.sig = "bool";
+            std::string check1 = signaturize(tree.children[0],table,level);
+            std::string check2 = signaturize(tree.children[1],table,level);
+            if(check1 != check2){
+                logger->error("Boolean comparison type mismatch",tree.where);
+            }
+        }else if(tree.type == "+" || tree.type == "-" || tree.type == "*" || tree.type == "/" || tree.type == "%"){
+            std::string check1 = signaturize(tree.children[0],table,level);
+            std::string check2 = signaturize(tree.children[1],table,level);
+            if(check1 != check2){
+                logger->error("Arithmetic type mismatch",tree.where);
+            }
+            tree.sig = check1;
+        }
+    }
+    for(auto &i : tree.children){
+        Stable s = table;
+        signaturize(i,s,level + 1);
+    }
+    return tree.sig;
+}
+
+bool Checker::ispredeclared(std::string type){
+    if(type == "true" || type == "false" ||
+        type == "bool" || type == "int" ||
+        type == "string" || type == "getchar" ||
+        type == "halt" || type == "len" ||
+        type == "printb" || type == "printc" ||
+        type == "printi" || type == "prints"){
+            return true;
+        }
+    return false;
 }

@@ -15,7 +15,7 @@ class Ast
         std::string attr = "";
         int where = -1;
         std::vector<Ast> children;
-        std::string sig;
+        std::string sig = "";
 };
 
 #endif

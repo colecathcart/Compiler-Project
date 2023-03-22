@@ -26,13 +26,16 @@
 #include "ast.hpp"
 #include "checker.hpp"
 
-//utility function to print out ast for ms2
-void astprinter(Ast ast, std::string tab){
+//utility function to print out ast for ms3
+void astprinter(Ast &ast, std::string tab){
     std::string ast_str = tab + ast.type;
     if (!ast.attr.empty()){
         ast_str += " [" + ast.attr + "]";
     }
 
+    if (!ast.sig.empty()){
+        ast_str += " sig = " + ast.sig;
+    }
     if (ast.where > 0){
         ast_str += " @ line " + std::to_string(ast.where);
     }

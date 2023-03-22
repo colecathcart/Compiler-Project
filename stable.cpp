@@ -21,17 +21,22 @@ Stable::Stable(){
 
 //Function to insert a new variable into the symbol table.
 //Handles errors relating to variable reassignment.
-void Stable::declare(Ast &t, Symbol &sym){
-    if(symboltable.find(t.attr) != symboltable.end()){
-        logger->error("Variable in-scope reassigned",t.where);
+void Stable::declare(Ast &t, Symbol &sym, int level){
+    if(symboltable.find(t.attr) != symboltable.end() && level == sym.scope){
+        printf("%s\n",t.attr.c_str());
+        logger->error("Variable in same scope reassigned",t.where);
     } else {
         symboltable[t.attr] = sym;
+        printf("sym added: %s\n",sym.name.c_str());
     }
 }
 
 //Fnction to lookup a symbol in the table. Handles
 //errors relating to nonexistent variable/function calls.
 Symbol Stable::lookup(Ast &t){
+    printf("looking for %s\n",t.attr.c_str());
+    printf("size of table: %ld\n",symboltable.size());
+    printf("the key: %s\n", symboltable.begin()->first.c_str());
     if(symboltable.find(t.attr) == symboltable.end()){
         logger->error("Variable or function called before assignment",t.where);
     }

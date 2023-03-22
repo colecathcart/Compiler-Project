@@ -1,6 +1,6 @@
-Run started on Tue Feb 28 23:29:08 2023
+Run started on Tue Mar 21 23:23:18 2023
 
-Hostname: linux12-wc.cs.ucalgary.ca
+Hostname: linux02-eb.cs.ucalgary.ca
 
 -------------------------------------------------------------------------------
 Running make |
@@ -15,7 +15,10 @@ g++ -Wall -c token.cpp
 g++ -Wall -c logger.cpp
 g++ -Wall -c parser.cpp
 g++ -Wall -c ast.cpp
-g++ -Wall main.o scanner.o logger.o token.o parser.o ast.o -o golf
+g++ -Wall -c checker.cpp
+g++ -Wall -c symbol.cpp
+g++ -Wall -c stable.cpp
+g++ -Wall main.o scanner.o logger.o token.o parser.o ast.o checker.o symbol.o stable.o -o golf
 
 
 STDERR:
@@ -75,441 +78,886 @@ Error: Could not find or open specified file
 RETURN CODE: 1
 
 -------------------------------------------------------------------------------
-Test: func open brace in wrong place |
---------------------------------------
+Test: later global "int" redeclaration |
+----------------------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t1
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t1
 
 STDOUT:
+sym added: foo
+looking for foo
+size of table: 1
+the key: 
 
 
 STDERR:
-Error: Unexpected newline, at or near line 3
+Error: Variable or function called before assignment, at or near line 4
 
 
 RETURN CODE: 1
 
 -------------------------------------------------------------------------------
-Test: "for" open brace exception |
-----------------------------------
+Test: global var declaration loop |
+-----------------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t2
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t2
 
 STDOUT:
-program
-	func
-		newid [main] @ line 4
-		signature
-			formals
-			typeid [void]
-		block
-			for
-			block
-				emptystmt
+sym added: int
+looking for int
+size of table: 1
+the key: 
 
 
 STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: "for" open brace in wrong place |
----------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t3
-
-STDOUT:
-program
-	func
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			for
-			expr
-			emptystmt
-			block
-				emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: "if" open brace in wrong place |
---------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t4
-
-STDOUT:
-program
-	func
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			if
-			expr
-			emptystmt
-			block
-				emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: weird but correct formatting |
-------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t5
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 5
+Error: Variable or function called before assignment, at or near line 4
 
 
 RETURN CODE: 1
 
 -------------------------------------------------------------------------------
-Test: precedence check |
+Test: local var version of check.t2 |
+-------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t3
+
+STDOUT:
+sym added: int
+looking for int
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 5
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: global name test |
 ------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t6
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t4
 
 STDOUT:
+sym added: b4int
+looking for b4int
+size of table: 1
+the key: 
 
 
 STDERR:
-Error: Missing closing bracket, at or near line 5
+Error: Variable or function called before assignment, at or near line 3
 
 
 RETURN CODE: 1
 
 -------------------------------------------------------------------------------
-Test: formal and actual params |
---------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t7
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 10
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: unary and binary minus |
-------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t8
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: func open brace in wrong place, with semicolon |
-------------------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t9
-
-STDOUT:
-
-
-STDERR:
-Error: Unexpected newline, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: func open brace with bonus semicolon |
---------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t10
-
-STDOUT:
-
-
-STDERR:
-Error: Unexpected newline, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: "for" open brace in wrong place, with semicolon |
--------------------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t11
-
-STDOUT:
-program
-	func
-		newid [main] @ line 4
-		signature
-			formals
-			typeid [void]
-		block
-			for
-			expr
-			emptystmt
-			block
-				emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: "for" with bonus semicolon |
-----------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t12
-
-STDOUT:
-program
-	func
-		newid [main] @ line 4
-		signature
-			formals
-			typeid [void]
-		block
-			for
-			expr
-			emptystmt
-			block
-				emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: "if" open brace in wrong place, with semicolon |
-------------------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t13
-
-STDOUT:
-program
-	func
-		newid [main] @ line 4
-		signature
-			formals
-			typeid [void]
-		block
-			if
-			expr
-			emptystmt
-			block
-				emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: "if" with bonus semicolon |
----------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t14
-
-STDOUT:
-program
-	func
-		newid [main] @ line 4
-		signature
-			formals
-			typeid [void]
-		block
-			if
-			expr
-			emptystmt
-			block
-				emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: func line breaks using trailing commas |
-----------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t15
-
-STDOUT:
-program
-	func
-		newid [foo] @ line 3
-		signature
-			formals
-				formal
-					newid [a] @ line 3
-					typeid [int] @ line 3
-				formal
-					newid [b] @ line 4
-					typeid [int] @ line 4
-				formal
-					newid [c] @ line 5
-					typeid [int] @ line 5
-			typeid [void]
-		block
-			emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: func line breaks sans trailing comma |
---------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t16
-
-STDOUT:
-program
-	func
-		newid [foo] @ line 4
-		signature
-			formals
-				formal
-					newid [a] @ line 4
-					typeid [int] @ line 4
-				formal
-					newid [b] @ line 5
-					typeid [int] @ line 5
-				formal
-					newid [c] @ line 6
-					typeid [int] @ line 6
-			typeid [void]
-		block
-			emptystmt
-
-
-STDERR:
-
-
-RETURN CODE: 0
-
--------------------------------------------------------------------------------
-Test: func call line breaks with trailing commas |
---------------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t17
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: func call line breaks sans trailing comma |
--------------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t18
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 5
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: legit syntax salad |
---------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t19
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 6
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: assignment |
-------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t20
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 7
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: associativity test |
---------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms2/parse.t21
-
-STDOUT:
-
-
-STDERR:
-Error: Missing closing bracket, at or near line 10
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: a calculated move |
+Test: block scope check |
 -------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms2/gen.t18
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t5
+
+STDOUT:
+sym added: x
+looking for x
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: global var declaration, complex loop |
+--------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t6
+
+STDOUT:
+sym added: int
+looking for int
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: parameter scope test |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t7
 
 STDOUT:
 
 
 STDERR:
-Error: Missing closing bracket, at or near line 6
+Error: Return type does not match function signature, at or near line 5
 
 
 RETURN CODE: 1
 
-Run ended on Tue Feb 28 23:29:11 2023
+-------------------------------------------------------------------------------
+Test: constants can't be changed |
+----------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t8
+
+STDOUT:
+
+
+STDERR:
+Error: Can't assign to a constant, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: nonexistent type name |
+-----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t9
+
+STDOUT:
+looking for notthere
+size of table: 0
+the key: (null)
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: type name not a type |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t10
+
+STDOUT:
+sym added: t
+looking for t
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: formal parameters need types |
+------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t11
+
+STDOUT:
+program
+	func @ line 3
+		newid [main] @ line 3
+		signature
+			formals
+			typeid [void]
+		block
+			emptystmt
+	func @ line 6
+		newid [foo] @ line 6
+		signature
+			formals
+				formal
+					newid [a1] @ line 6
+					typeid [int] @ line 6
+				formal
+					newid [a2] @ line 6
+					typeid [main] @ line 6
+				formal
+					newid [a3] @ line 6
+					typeid [bool] @ line 6
+			typeid [void]
+		block
+			emptystmt
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: multiple (main) functions, same name |
+--------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t12
+
+STDOUT:
+
+
+STDERR:
+Error: Multiple main functions declared
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: no main function |
+------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t13
+
+STDOUT:
+
+
+STDERR:
+Error: Missing main function
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: main can't have arguments |
+---------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t14
+
+STDOUT:
+
+
+STDERR:
+Error: Main function cannot have arguments
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: main can't have a return value |
+--------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t15
+
+STDOUT:
+
+
+STDERR:
+Error: Non-void return in void function, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: dup check for formal parameters |
+---------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t16
+
+STDOUT:
+program
+	func @ line 4
+		newid [main] @ line 4
+		signature
+			formals
+			typeid [void]
+		block
+			emptystmt
+	func @ line 7
+		newid [foo] @ line 7
+		signature
+			formals
+				formal
+					newid [i] @ line 7
+					typeid [int] @ line 7
+				formal
+					newid [b] @ line 7
+					typeid [bool] @ line 7
+				formal
+					newid [i] @ line 7
+					typeid [int] @ line 7
+			typeid [void]
+		block
+			emptystmt
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: function call as lvalue |
+-------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t17
+
+STDOUT:
+looking for foo
+size of table: 0
+the key: (null)
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 6
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: function name as lvalue |
+-------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t18
+
+STDOUT:
+looking for foo
+size of table: 0
+the key: (null)
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 6
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: humongous integer literal |
+---------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t19
+
+STDOUT:
+sym added: i
+looking for i
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: positive integer literal out of range |
+---------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t20
+
+STDOUT:
+sym added: i
+looking for i
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: negative integer literal out of range |
+---------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t21
+
+STDOUT:
+sym added: i
+looking for i
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: "break" not inside "for" loop |
+-------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t22
+
+STDOUT:
+
+
+STDERR:
+Error: Break statement found outside of for-loop, at or near line 7
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: "break" in block, but not in "for" |
+------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t23
+
+STDOUT:
+
+
+STDERR:
+Error: Break statement found outside of for-loop, at or near line 5
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: "break" in "if" block |
+-----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t24
+
+STDOUT:
+
+
+STDERR:
+Error: Break statement found outside of for-loop, at or near line 5
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: missing return statement |
+--------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t25
+
+STDOUT:
+
+
+STDERR:
+Error: Function with return type never returns
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: returning value from void function |
+------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t26
+
+STDOUT:
+
+
+STDERR:
+Error: Non-void return in void function, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: return type mismatch |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t27
+
+STDOUT:
+
+
+STDERR:
+Error: Return type does not match function signature, at or near line 7
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: missing return type |
+---------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t28
+
+STDOUT:
+
+
+STDERR:
+Error: Return type does not match function signature, at or near line 7
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: "if" expr not a boolean type |
+------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t29
+
+STDOUT:
+program
+	func @ line 3
+		newid [main] @ line 3
+		signature
+			formals
+			typeid [void]
+		block
+			if @ line 4
+				INTEGER [1] sig = int @ line 4
+				block
+					emptystmt
+			
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: "if"-"else" not a boolean type |
+--------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t30
+
+STDOUT:
+program
+	func @ line 3
+		newid [main] @ line 3
+		signature
+			formals
+			typeid [void]
+		block
+			if @ line 4
+				INTEGER [1] sig = int @ line 4
+				block
+					emptystmt
+				else @ line 5
+					block
+						emptystmt
+			
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: "for" expr not a boolean type |
+-------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t31
+
+STDOUT:
+sym added: four
+looking for four
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 6
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: legit expression statements |
+-----------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t32
+
+STDOUT:
+sym added: i
+looking for i
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: built-in routine check |
+------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t33
+
+STDOUT:
+sym added: ch
+looking for ch
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 8
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: actual parameter type check |
+-----------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t34
+
+STDOUT:
+looking for main
+size of table: 0
+the key: (null)
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: operand type mismatch |
+-----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t35
+
+STDOUT:
+sym added: a
+looking for a
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: another actual parameter type check |
+-------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t36
+
+STDOUT:
+looking for foo
+size of table: 0
+the key: (null)
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 7
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: return+argument checks |
+------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t37
+
+STDOUT:
+looking for bar
+size of table: 0
+the key: (null)
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: scope check and undefined variable |
+------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t38
+
+STDOUT:
+sym added: a
+looking for a
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 2
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: redefined variable |
+--------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t39
+
+STDOUT:
+sym added: a
+looking for a
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: comparable and ordered comparisons |
+------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t40
+
+STDOUT:
+program
+	func @ line 3
+		newid [main] @ line 3
+		signature
+			formals
+			typeid [void]
+		block
+			== [==] sig = bool @ line 4
+				STRING [abc] sig = string @ line 4
+				STRING [def] sig = string @ line 4
+			
+			!= [!=] sig = bool @ line 5
+				INTEGER [123] sig = int @ line 5
+				INTEGER [456] sig = int @ line 5
+			
+			== [==] sig = bool @ line 6
+				ID [true] sig = bool @ line 6
+				ID [false] sig = bool @ line 6
+			
+			!= [!=] sig = bool @ line 7
+				ID [false] sig = bool @ line 7
+				ID [true] sig = bool @ line 7
+			
+			> [>] sig = bool @ line 8
+				ID [true] sig = bool @ line 8
+				ID [false] sig = bool @ line 8
+			
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: int/bool distinction |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t41
+
+STDOUT:
+sym added: i
+looking for i
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: deep type propagation |
+-----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t42
+
+STDOUT:
+sym added: x
+looking for x
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: redefining "true" and "false" |
+-------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t43
+
+STDOUT:
+sym added: true
+looking for true
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 3
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: call of non-function |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t44
+
+STDOUT:
+program
+	func @ line 3
+		newid [main] @ line 3
+		signature
+			formals
+			typeid [void]
+		block
+			STRING [asdf] sig = string @ line 4
+				arguments
+					INTEGER [1] sig = int @ line 4
+					INTEGER [2] sig = int @ line 4
+					INTEGER [3] sig = int @ line 4
+			
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: type id used in wrong context |
+-------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/ms3/check.t45
+
+STDOUT:
+sym added: x
+looking for x
+size of table: 1
+the key: 
+
+
+STDERR:
+Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 1
+
+Run ended on Tue Mar 21 23:23:22 2023
 

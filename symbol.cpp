@@ -17,15 +17,19 @@
 //
 //std::string sig: the type signature of the sybol
 //
+//int level: the scope level of the symbol
+//
 //std::vector<std::string> formals: An optionally-empty list of formals signatures for functions
 //
-Symbol::Symbol(std::string name_, std::string sig_, std::vector<std::string> formals_){
+Symbol::Symbol(std::string name_, std::string sig_, int scope_, std::vector<std::string> formals_){
     name = name_;
     sig = sig_;
+    scope = scope_;
     formals = formals_;
 }
 
-Symbol::Symbol(std::string name_, std::string sig_){
+Symbol::Symbol(std::string name_, std::string sig_, int scope_){
     name = name_;
     sig = sig_;
+    scope = scope_;
 }

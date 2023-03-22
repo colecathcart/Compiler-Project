@@ -13,11 +13,12 @@ class Stable{
 
     public:
         Stable();
-        void declare(Ast &t, Symbol &sym);
+        void declare(Ast &t, Symbol &sym, int level);
         Symbol lookup(Ast &t);
+        std::map<std::string, Symbol> symboltable;
 
     private:
-        std::map<std::string, Symbol> symboltable;
+        
         Logger *logger = nullptr;
 };
 #endif
