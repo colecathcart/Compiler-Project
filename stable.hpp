@@ -17,6 +17,8 @@ class Stable{
         Symbol lookup(Ast &t);
         std::map<std::string, Symbol> symboltable;
 
+        void print_table();
+
     private:
         
         Logger *logger = nullptr;

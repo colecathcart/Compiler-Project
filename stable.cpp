@@ -22,24 +22,37 @@ Stable::Stable(){
 //Function to insert a new variable into the symbol table.
 //Handles errors relating to variable reassignment.
 void Stable::declare(Ast &t, Symbol &sym, int level){
-    if(symboltable.find(t.attr) != symboltable.end() && level == sym.scope){
-        printf("%s\n",t.attr.c_str());
-        logger->error("Variable in same scope reassigned",t.where);
+    if(symboltable.find(sym.name) != symboltable.end()){
+        if(symboltable[sym.name].scope == level){
+            //printf("%s\n",t.attr.c_str());
+            logger->error("Variable in same scope reassigned",t.where);
+        }else{
+            symboltable[sym.name] = sym;
+        }
     } else {
-        symboltable[t.attr] = sym;
-        printf("sym added: %s\n",sym.name.c_str());
+        //printf("t_attr = %s\n", t.attr.c_str());
+        symboltable.insert({sym.name, sym});
+        //printf("sym added: %s\n",sym.name.c_str());
     }
 }
 
-//Fnction to lookup a symbol in the table. Handles
+//Function to lookup a symbol in the table. Handles
 //errors relating to nonexistent variable/function calls.
 Symbol Stable::lookup(Ast &t){
-    printf("looking for %s\n",t.attr.c_str());
-    printf("size of table: %ld\n",symboltable.size());
-    printf("the key: %s\n", symboltable.begin()->first.c_str());
+    //printf("looking for %s\n",t.attr.c_str());
+    //printf("size of table: %ld\n",symboltable.size());
     if(symboltable.find(t.attr) == symboltable.end()){
-        logger->error("Variable or function called before assignment",t.where);
+       logger->error("Variable or function called before assignment",t.where);
     }
     return symboltable[t.attr];
     
+}
+
+void Stable::print_table()
+{
+    printf("Symbol table:\n");
+    for(const auto& elem : symboltable)
+    {
+        printf("\tKey: %s, value: %s\n",elem.first.c_str(), elem.second.name.c_str());
+    }
 }
