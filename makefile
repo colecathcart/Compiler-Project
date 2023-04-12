@@ -1,5 +1,5 @@
-golf: main.o scanner.o token.o logger.o parser.o ast.o checker.o symbol.o stable.o
-	g++ -Wall main.o scanner.o logger.o token.o parser.o ast.o checker.o symbol.o stable.o -o golf
+golf: main.o scanner.o token.o logger.o parser.o ast.o checker.o symbol.o stable.o generator.o
+	g++ -Wall main.o scanner.o logger.o token.o parser.o ast.o checker.o symbol.o stable.o generator.o -o golf
 
 main.o: main.cpp
 	g++ -Wall -c main.cpp
@@ -28,5 +28,7 @@ symbol.o: symbol.cpp
 stable.o: stable.cpp
 	g++ -Wall -c stable.cpp
 
+generator.o: generator.cpp
+	g++ -Wall -c generator.cpp
 clean:
 	rm *.o golf

@@ -25,6 +25,7 @@
 #include "parser.hpp"
 #include "ast.hpp"
 #include "checker.hpp"
+#include "generator.hpp"
 
 //utility function to print out ast for ms3
 void astprinter(Ast &ast, std::string tab){
@@ -86,12 +87,25 @@ int main(int argc, char* argv[]){
     */
 
     //for testing of semantic checker
+    /*
     Scanner scanner = Scanner(file);
     Parser parser = Parser(scanner);
     Ast ast = parser.parse();
     Checker checker = Checker(ast);
     ast = checker.check();
     astprinter(ast, "");
+    file.close();
+    */
+
+    //generator output
+    Scanner scanner = Scanner(file);
+    Parser parser = Parser(scanner);
+    Ast ast = parser.parse();
+    Checker checker = Checker(ast);
+    ast = checker.check();
+    Generator generator = Generator(ast);
+    astprinter(ast,"");
+    generator.generate();
     file.close();
 
 }
