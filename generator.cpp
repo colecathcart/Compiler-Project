@@ -27,6 +27,7 @@ Generator::Generator(Ast &ast) : ast_{ast}{
 }
 
 void Generator::generate(){
+    zerodivcheck(ast_);
     before();
     toplevel();
     outputter(ast_, 0, ";");
@@ -54,6 +55,16 @@ std::string Generator::lzremover(std::string num){
         return lzremover(num.substr(1));
     }else{
         return num;
+    }
+}
+
+//Function to handle dividing by zerp
+void Generator::zerodivcheck(Ast &ast){
+    for(auto i : ast.children){
+        if(ast.type == "/" && lzremover(ast.children[1].attr) == "0"){
+            logger->error("Division by zero",ast.where);
+        }
+        zerodivcheck(i);
     }
 }
 
@@ -166,7 +177,8 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
             }else if(i.children[1].type == "STRING"){
                 printf("\"%s\";\n",i.children[1].attr.c_str());
             }else if(i.children[1].type == "ID"){
-                printf("G%s;\n",i.children[1].attr.c_str());
+                argshandler(i.children[1]);
+                printf(";\n");
             }else{
                 eqhandler(i.children[1]);
                 printf(";\n");
@@ -180,13 +192,21 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
             if(i.children[0].attr == "true"){
                 printf("true){\n");
             }else if(i.children[0].type == "ID"){
-                printf("G%s){\n",i.children[0].attr.c_str());
+                argshandler(i.children[0]);
+                printf("){\n");
             }else{
                 eqhandler(i.children[0]);
                 printf("){\n");
             }
             outputter(i.children[1], level + 1, ";");
             printf("}\n");
+            if(i.children.size() > 2 && i.children[2].type == "else"){
+                printf("else");
+                outputter(i.children[2], level + 1, ";");
+            }
+        }else if(i.type == "else"){
+            printf("else");
+            outputter(i, level + 1, ";");
         }else if(i.type == "return"){
             printf("return ");
             outputter(i,level,"");
@@ -204,7 +224,7 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
 
 void Generator::argshandler(Ast &ast){
     if(ast.type == "ID"){
-            printf("G%s ",ast.attr.c_str());
+            printf("G%s",ast.attr.c_str());
             if(ast.children.size() > 0 && ast.children[0].type == "arguments"){
                 printf("(");
                 unsigned int length = 0;
@@ -230,11 +250,12 @@ void Generator::argshandler(Ast &ast){
 void Generator::eqhandler(Ast &ast){
     if(ast.type == "u!" || ast.type == "u-"){
         if(ast.type == "u!"){
-            printf("!");
+            printf("!(");
         }else{
-            printf("-");
+            printf("-(");
         }
         eqhandler(ast.children[0]);
+        printf(")");
     } else {
         if(is_eq(ast.type)){
             eqhandler(ast.children[0]);

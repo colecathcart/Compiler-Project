@@ -356,7 +356,7 @@ std::string Checker::signaturize(Ast &tree, Stable &table, int level){
             std::string check1 = signaturize(tree.children[0],table,level);
             std::string check2 = signaturize(tree.children[1],table,level);
             if(check1 != check2){
-                logger->error("Boolean comparison type mismatch",tree.where);
+                //logger->error("Boolean comparison type mismatch",tree.where);
             }
         }else if(tree.type == "<" || tree.type == ">" || tree.type == ">=" || tree.type == "<="){
             tree.sig = "bool";
