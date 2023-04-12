@@ -28,6 +28,7 @@ Generator::Generator(Ast &ast) : ast_{ast}{
 
 void Generator::generate(){
     zerodivcheck(ast_);
+    realreturncheck();
     before();
     toplevel();
     outputter(ast_, 0, ";");
@@ -58,7 +59,7 @@ std::string Generator::lzremover(std::string num){
     }
 }
 
-//Function to handle dividing by zerp
+//Function to handle dividing by zero
 void Generator::zerodivcheck(Ast &ast){
     for(auto i : ast.children){
         if(ast.type == "/" && lzremover(ast.children[1].attr) == "0"){
@@ -68,12 +69,61 @@ void Generator::zerodivcheck(Ast &ast){
     }
 }
 
+//Helper function for realreturnchek
+int Generator::realrethelper(Ast &ast){
+    int goodreturn = 0;
+    for(auto i: ast.children){
+        if(i.type == "return"){
+            goodreturn++;
+        }else if(i.type == "if"){
+            for(auto k : i.children){
+                if(k.type == "else"){
+                    goodreturn += realrethelper(k);
+                }
+            }
+        }else{
+            goodreturn += realrethelper(i);
+        }
+    }
+    return goodreturn;
+}
+
+//Function to handle returns that only exist within conditionals
+void Generator::realreturncheck(){
+    for(auto i : ast_.children){
+        if(i.type == "func" && i.children[1].children[1].attr != "void"){
+            int goodreturn = 0;
+            for(auto j : i.children[2].children){
+                if(j.type == "return"){
+                    goodreturn++;
+                }else if(j.type == "if"){
+                    for(auto k : j.children){
+                        if(k.type == "else"){
+                            goodreturn += realrethelper(k);
+                        }
+                    }
+                }else{
+                    goodreturn += realrethelper(i);
+                }
+            }
+            if(goodreturn < 1){
+                logger->error("Function must return a value",i.where);
+            }
+        }
+    }
+}
+
 //Helper function to generate all top-level variable and function declarations
 void Generator::toplevel(){
     for(auto i : ast_.children){
         if(i.type == "func"){
             std::string fname = i.children[0].attr;
             std::string type = i.children[1].children[1].attr;
+            if(type == "int" || type == "bool"){
+                type = "golf_t";
+            }else{
+                type = "const char *";
+            }
             printf("%s G%s(",type.c_str(),fname.c_str());
             unsigned int length = 0;
             for(auto j : i.children[1].children[0].children){
@@ -117,6 +167,11 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
         if(i.type == "func"){
             std::string fname = i.children[0].attr;
             std::string type = i.children[1].children[1].attr;
+            if(type == "int" || type == "bool"){
+                type = "golf_t";
+            }else{
+                type = "const char *";
+            }
             printf("%s G%s(",type.c_str(),fname.c_str());
             unsigned int length = 0;
             for(auto j : i.children[1].children[0].children){
@@ -248,11 +303,13 @@ void Generator::argshandler(Ast &ast){
 
 //Function to handle boolean and arithmetic expressions
 void Generator::eqhandler(Ast &ast){
-    if(ast.type == "u!" || ast.type == "u-"){
+    if(ast.type == "u!" || ast.type == "u-" || ast.type == "expr_operand"){
         if(ast.type == "u!"){
             printf("!(");
-        }else{
+        }else if(ast.type == "u!"){
             printf("-(");
+        }else{
+            printf("(");
         }
         eqhandler(ast.children[0]);
         printf(")");
@@ -264,7 +321,7 @@ void Generator::eqhandler(Ast &ast){
                 eqhandler(ast.children[1]);
             }
         }else if(ast.type == "ID"){
-            printf("G%s ",ast.attr.c_str());
+            printf("G%s",ast.attr.c_str());
             if(ast.children.size() > 0 && ast.children[0].type == "arguments"){
                 printf("(");
                 unsigned int length = 0;
@@ -295,7 +352,7 @@ bool Generator::is_eq(std::string t){
         t == "<" || t == ">=" ||
         t == "<=" || t == "==" ||
         t == "!=" || t == "&&" ||
-        t == "||");
+        t == "||" || t == "expr_operand");
 }
 
 //Function to handle ending the generated C code

@@ -17,6 +17,8 @@ class Generator {
         void before();
         void toplevel();
         void zerodivcheck(Ast &ast);
+        void realreturncheck();
+        int realrethelper(Ast &ast);
         void outputter(Ast &ast, int level, std::string setsemi);
         void eqhandler(Ast &ast);
         void argshandler(Ast &ast);
