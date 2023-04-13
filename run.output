@@ -1,6 +1,6 @@
-Run started on Tue Mar 21 23:23:18 2023
+Run started on Wed Apr 12 20:44:26 2023
 
-Hostname: linux02-eb.cs.ucalgary.ca
+Hostname: linux12-wa.cs.ucalgary.ca
 
 -------------------------------------------------------------------------------
 Running make |
@@ -18,7 +18,8 @@ g++ -Wall -c ast.cpp
 g++ -Wall -c checker.cpp
 g++ -Wall -c symbol.cpp
 g++ -Wall -c stable.cpp
-g++ -Wall main.o scanner.o logger.o token.o parser.o ast.o checker.o symbol.o stable.o -o golf
+g++ -Wall -c generator.cpp
+g++ -Wall main.o scanner.o logger.o token.o parser.o ast.o checker.o symbol.o stable.o generator.o -o golf
 
 
 STDERR:
@@ -78,217 +79,30 @@ Error: Could not find or open specified file
 RETURN CODE: 1
 
 -------------------------------------------------------------------------------
-Test: later global "int" redeclaration |
-----------------------------------------
+Test: hello, world |
+--------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t1
-
-STDOUT:
-sym added: foo
-looking for foo
-size of table: 1
-the key: 
-
+% ./golf /home/profs/aycock/411/TEST/final/gen.t1 > out.c
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: global var declaration loop |
------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t2
-
-STDOUT:
-sym added: int
-looking for int
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: local var version of check.t2 |
--------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t3
-
-STDOUT:
-sym added: int
-looking for int
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 5
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: global name test |
-------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t4
-
-STDOUT:
-sym added: b4int
-looking for b4int
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 3
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: block scope check |
--------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t5
-
-STDOUT:
-sym added: x
-looking for x
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: global var declaration, complex loop |
---------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t6
-
-STDOUT:
-sym added: int
-looking for int
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 3
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: parameter scope test |
-----------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t7
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
 
 
 STDERR:
-Error: Return type does not match function signature, at or near line 5
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: constants can't be changed |
-----------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t8
+% ./a.out
 
 STDOUT:
-
-
-STDERR:
-Error: Can't assign to a constant, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: nonexistent type name |
------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t9
-
-STDOUT:
-looking for notthere
-size of table: 0
-the key: (null)
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 3
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: type name not a type |
-----------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t10
-
-STDOUT:
-sym added: t
-looking for t
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 3
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: formal parameters need types |
-------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t11
-
-STDOUT:
-program
-	func @ line 3
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			emptystmt
-	func @ line 6
-		newid [foo] @ line 6
-		signature
-			formals
-				formal
-					newid [a1] @ line 6
-					typeid [int] @ line 6
-				formal
-					newid [a2] @ line 6
-					typeid [main] @ line 6
-				formal
-					newid [a3] @ line 6
-					typeid [bool] @ line 6
-			typeid [void]
-		block
-			emptystmt
+Hello, world!
 
 
 STDERR:
@@ -297,96 +111,38 @@ STDERR:
 RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: multiple (main) functions, same name |
---------------------------------------------
+Test: var init in loop block |
+------------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t12
+% ./golf /home/profs/aycock/411/TEST/final/gen.t2 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
 
 
 STDERR:
-Error: Multiple main functions declared
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: no main function |
-------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t13
+% ./a.out
 
 STDOUT:
-
-
-STDERR:
-Error: Missing main function
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: main can't have arguments |
----------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t14
-
-STDOUT:
-
-
-STDERR:
-Error: Main function cannot have arguments
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: main can't have a return value |
---------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t15
-
-STDOUT:
-
-
-STDERR:
-Error: Non-void return in void function, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: dup check for formal parameters |
----------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t16
-
-STDOUT:
-program
-	func @ line 4
-		newid [main] @ line 4
-		signature
-			formals
-			typeid [void]
-		block
-			emptystmt
-	func @ line 7
-		newid [foo] @ line 7
-		signature
-			formals
-				formal
-					newid [i] @ line 7
-					typeid [int] @ line 7
-				formal
-					newid [b] @ line 7
-					typeid [bool] @ line 7
-				formal
-					newid [i] @ line 7
-					typeid [int] @ line 7
-			typeid [void]
-		block
-			emptystmt
+start of loop
+0
+start of loop
+0
+start of loop
+0
+start of loop
+0
+4
 
 
 STDERR:
@@ -395,222 +151,140 @@ STDERR:
 RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: function call as lvalue |
--------------------------------
+Test: zero values |
+-------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t17
-
-STDOUT:
-looking for foo
-size of table: 0
-the key: (null)
-
+% ./golf /home/profs/aycock/411/TEST/final/gen.t3 > out.c
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 6
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: function name as lvalue |
--------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t18
-
-STDOUT:
-looking for foo
-size of table: 0
-the key: (null)
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 6
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: humongous integer literal |
----------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t19
-
-STDOUT:
-sym added: i
-looking for i
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: positive integer literal out of range |
----------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t20
-
-STDOUT:
-sym added: i
-looking for i
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: negative integer literal out of range |
----------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t21
-
-STDOUT:
-sym added: i
-looking for i
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: "break" not inside "for" loop |
--------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t22
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
 
 
 STDERR:
-Error: Break statement found outside of for-loop, at or near line 7
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: "break" in block, but not in "for" |
-------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t23
+% ./a.out
 
 STDOUT:
+global zero values: 
+false
+0
+
+local zero values: 
+false
+0
+
+local zero values: 
+false
+0
+
+sub-block zero values: 
+false
+0
+
+sub-block zero values: 
+false
+0
+
+post-sub-block zero values: 
+true
+123
+garble
 
 
 STDERR:
-Error: Break statement found outside of for-loop, at or near line 5
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: "break" in "if" block |
+Test: nested function calls |
 -----------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t24
+% ./golf /home/profs/aycock/411/TEST/final/gen.t4 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
 
 
 STDERR:
-Error: Break statement found outside of for-loop, at or near line 5
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: missing return statement |
---------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t25
+% ./a.out
 
 STDOUT:
+3628800
 
 
 STDERR:
-Error: Function with return type never returns
 
 
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: returning value from void function |
-------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t26
-
-STDOUT:
-
-
-STDERR:
-Error: Non-void return in void function, at or near line 4
-
-
-RETURN CODE: 1
+RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: return type mismatch |
-----------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t27
-
-STDOUT:
-
-
-STDERR:
-Error: Return type does not match function signature, at or near line 7
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: missing return type |
+Test: recursive Fibonacci |
 ---------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t28
+% ./golf /home/profs/aycock/411/TEST/final/gen.t5 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
 
 
 STDERR:
-Error: Return type does not match function signature, at or near line 7
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: "if" expr not a boolean type |
-------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t29
+% ./a.out
 
 STDOUT:
-program
-	func @ line 3
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			if @ line 4
-				INTEGER [1] sig = int @ line 4
-				block
-					emptystmt
-			
+fib(0) = 0
+fib(1) = 1
+fib(2) = 1
+fib(3) = 2
+fib(4) = 3
+fib(5) = 5
+fib(6) = 8
+fib(7) = 13
+fib(8) = 21
+fib(9) = 34
+fib(10) = 55
+fib(11) = 89
+fib(12) = 144
+fib(13) = 233
+fib(14) = 377
+fib(15) = 610
+fib(16) = 987
+fib(17) = 1597
+fib(18) = 2584
+fib(19) = 4181
+fib(20) = 6765
+fib(21) = 10946
+fib(22) = 17711
+fib(23) = 28657
 
 
 STDERR:
@@ -619,27 +293,76 @@ STDERR:
 RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: "if"-"else" not a boolean type |
---------------------------------------
+Test: iterative Fibonacci |
+---------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t30
+% ./golf /home/profs/aycock/411/TEST/final/gen.t6 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-program
-	func @ line 3
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			if @ line 4
-				INTEGER [1] sig = int @ line 4
-				block
-					emptystmt
-				else @ line 5
-					block
-						emptystmt
-			
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+fib(0) = 0
+fib(1) = 1
+fib(2) = 1
+fib(3) = 2
+fib(4) = 3
+fib(5) = 5
+fib(6) = 8
+fib(7) = 13
+fib(8) = 21
+fib(9) = 34
+fib(10) = 55
+fib(11) = 89
+fib(12) = 144
+fib(13) = 233
+fib(14) = 377
+fib(15) = 610
+fib(16) = 987
+fib(17) = 1597
+fib(18) = 2584
+fib(19) = 4181
+fib(20) = 6765
+fib(21) = 10946
+fib(22) = 17711
+fib(23) = 28657
+fib(24) = 46368
+fib(25) = 75025
+fib(26) = 121393
+fib(27) = 196418
+fib(28) = 317811
+fib(29) = 514229
+fib(30) = 832040
+fib(31) = 1346269
+fib(32) = 2178309
+fib(33) = 3524578
+fib(34) = 5702887
+fib(35) = 9227465
+fib(36) = 14930352
+fib(37) = 24157817
+fib(38) = 39088169
+fib(39) = 63245986
+fib(40) = 102334155
+fib(41) = 165580141
+fib(42) = 267914296
+fib(43) = 433494437
+fib(44) = 701408733
+fib(45) = 1134903170
+fib(46) = 1836311903
 
 
 STDERR:
@@ -648,207 +371,133 @@ STDERR:
 RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: "for" expr not a boolean type |
--------------------------------------
+Test: string reversal |
+-----------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t31
+% ./golf /home/profs/aycock/411/TEST/final/gen.t7 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-sym added: four
-looking for four
-size of table: 1
-the key: 
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 6
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: legit expression statements |
------------------------------------
+% ./a.out < /home/profs/aycock/411/TEST/final/input/gen.t7.in
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t32
+STDIN:
+A man, a plan, a canal: Panama.
+
 
 STDOUT:
-sym added: i
-looking for i
-size of table: 1
-the key: 
+.amanaP :lanac a ,nalp a ,nam A
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: hunting minint |
+----------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t8 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: built-in routine check |
-------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t33
+% ./a.out
 
 STDOUT:
-sym added: ch
-looking for ch
-size of table: 1
-the key: 
+minint is -2147483648
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 8
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: actual parameter type check |
------------------------------------
+Test: negating minint |
+-----------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t34
+% ./golf /home/profs/aycock/411/TEST/final/gen.t9 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-looking for main
-size of table: 0
-the key: (null)
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: operand type mismatch |
------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t35
+% ./a.out
 
 STDOUT:
-sym added: a
-looking for a
-size of table: 1
-the key: 
+-123
+-2147483648
+-2147483648
+-2147483648
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
 
 
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: another actual parameter type check |
--------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t36
-
-STDOUT:
-looking for foo
-size of table: 0
-the key: (null)
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 7
-
-
-RETURN CODE: 1
+RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: return+argument checks |
-------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t37
-
-STDOUT:
-looking for bar
-size of table: 0
-the key: (null)
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 4
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: scope check and undefined variable |
-------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t38
-
-STDOUT:
-sym added: a
-looking for a
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 2
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: redefined variable |
+Test: minint div and mod |
 --------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t39
+% ./golf /home/profs/aycock/411/TEST/final/gen.t10 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-sym added: a
-looking for a
-size of table: 1
-the key: 
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 3
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: comparable and ordered comparisons |
-------------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t40
+% ./a.out
 
 STDOUT:
-program
-	func @ line 3
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			== [==] sig = bool @ line 4
-				STRING [abc] sig = string @ line 4
-				STRING [def] sig = string @ line 4
-			
-			!= [!=] sig = bool @ line 5
-				INTEGER [123] sig = int @ line 5
-				INTEGER [456] sig = int @ line 5
-			
-			== [==] sig = bool @ line 6
-				ID [true] sig = bool @ line 6
-				ID [false] sig = bool @ line 6
-			
-			!= [!=] sig = bool @ line 7
-				ID [false] sig = bool @ line 7
-				ID [true] sig = bool @ line 7
-			
-			> [>] sig = bool @ line 8
-				ID [true] sig = bool @ line 8
-				ID [false] sig = bool @ line 8
-			
+-2147483648
+0
 
 
 STDERR:
@@ -857,82 +506,62 @@ STDERR:
 RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: int/bool distinction |
-----------------------------
+Test: division by zero |
+------------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t41
+% ./golf /home/profs/aycock/411/TEST/final/gen.t11 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-sym added: i
-looking for i
-size of table: 1
-the key: 
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+
+
+STDERR:
+error: division by zero
 
 
 RETURN CODE: 1
 
 -------------------------------------------------------------------------------
-Test: deep type propagation |
------------------------------
+Test: basic Booleans |
+----------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t42
+% ./golf /home/profs/aycock/411/TEST/final/gen.t12 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-sym added: x
-looking for x
-size of table: 1
-the key: 
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
 
 
-RETURN CODE: 1
+RETURN CODE: 0
 
--------------------------------------------------------------------------------
-Test: redefining "true" and "false" |
--------------------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t43
+% ./a.out
 
 STDOUT:
-sym added: true
-looking for true
-size of table: 1
-the key: 
-
-
-STDERR:
-Error: Variable or function called before assignment, at or near line 3
-
-
-RETURN CODE: 1
-
--------------------------------------------------------------------------------
-Test: call of non-function |
-----------------------------
-
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t44
-
-STDOUT:
-program
-	func @ line 3
-		newid [main] @ line 3
-		signature
-			formals
-			typeid [void]
-		block
-			STRING [asdf] sig = string @ line 4
-				arguments
-					INTEGER [1] sig = int @ line 4
-					INTEGER [2] sig = int @ line 4
-					INTEGER [3] sig = int @ line 4
-			
+OK
 
 
 STDERR:
@@ -941,23 +570,956 @@ STDERR:
 RETURN CODE: 0
 
 -------------------------------------------------------------------------------
-Test: type id used in wrong context |
--------------------------------------
+Test: string escapes |
+----------------------
 
-% ./golf /home/profs/aycock/411/TEST/ms3/check.t45
+% ./golf /home/profs/aycock/411/TEST/final/gen.t13 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
 
 STDOUT:
-sym added: x
-looking for x
-size of table: 1
-the key: 
 
 
 STDERR:
-Error: Variable or function called before assignment, at or near line 4
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+backslash b = []
+backslash t = [	]
+backslash n = [
+]
+backslash f = []
+backslash r = []
+backslash quote = ["]
+backslash backslash = [\]
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: all your base are belong to us |
+--------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t14 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+0 = 
+	0 (base 2)
+	0 (base 8)
+	0 (base 10)
+17 = 
+	010001 (base 2)
+	021 (base 8)
+	017 (base 10)
+42 = 
+	0101010 (base 2)
+	052 (base 8)
+	042 (base 10)
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: short-circuiting |
+------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t15 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+if ((A && B) || C) {...} else {...}, with A=false B=false C=false
+evaluated A
+evaluated C
+else-part executed
+
+if ((A && B) || C) {...} else {...}, with A=false B=false C=true
+evaluated A
+evaluated C
+if-part executed
+
+if ((A && B) || C) {...} else {...}, with A=false B=true C=false
+evaluated A
+evaluated C
+else-part executed
+
+if ((A && B) || C) {...} else {...}, with A=false B=true C=true
+evaluated A
+evaluated C
+if-part executed
+
+if ((A && B) || C) {...} else {...}, with A=true B=false C=false
+evaluated A
+evaluated B
+evaluated C
+else-part executed
+
+if ((A && B) || C) {...} else {...}, with A=true B=false C=true
+evaluated A
+evaluated B
+evaluated C
+if-part executed
+
+if ((A && B) || C) {...} else {...}, with A=true B=true C=false
+evaluated A
+evaluated B
+if-part executed
+
+if ((A && B) || C) {...} else {...}, with A=true B=true C=true
+evaluated A
+evaluated B
+if-part executed
+
+x = (A && !B) || C, with A=false B=false C=false
+evaluated A
+evaluated C
+x=false
+
+x = (A && !B) || C, with A=false B=false C=true
+evaluated A
+evaluated C
+x=true
+
+x = (A && !B) || C, with A=false B=true C=false
+evaluated A
+evaluated C
+x=false
+
+x = (A && !B) || C, with A=false B=true C=true
+evaluated A
+evaluated C
+x=true
+
+x = (A && !B) || C, with A=true B=false C=false
+evaluated A
+evaluated B
+x=true
+
+x = (A && !B) || C, with A=true B=false C=true
+evaluated A
+evaluated B
+x=true
+
+x = (A && !B) || C, with A=true B=true C=false
+evaluated A
+evaluated B
+evaluated C
+x=false
+
+x = (A && !B) || C, with A=true B=true C=true
+evaluated A
+evaluated B
+evaluated C
+x=true
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: dynamic semantic check |
+------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t16 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+
+
+STDERR:
+error: function "foo" must return a value
 
 
 RETURN CODE: 1
 
-Run ended on Tue Mar 21 23:23:22 2023
+-------------------------------------------------------------------------------
+Test: less obvious division by zero |
+-------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t17 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+
+
+STDERR:
+error: division by zero
+
+
+RETURN CODE: 1
+
+-------------------------------------------------------------------------------
+Test: recursive-descent calculator |
+------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t18 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out < /home/profs/aycock/411/TEST/final/input/gen.t18.in
+
+STDIN:
+2 + 3 * 5
+(2 + 3) * 5
+(976 - -24 + 123 - 1000) * 100 + 45
+
+
+STDOUT:
+ = 17
+ = 25
+ = 12345
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: string operations |
+-------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t19 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+out.c: In function ‘Gthere_is_no_comparison_there_is_only_zuul’:
+out.c:134:6: warning: self-comparison always evaluates to true [-Wtautological-compare]
+  134 | if(Gb<= Gb){
+      |      ^~
+out.c:138:6: warning: self-comparison always evaluates to true [-Wtautological-compare]
+  138 | if(Ga>= Ga){
+      |      ^~
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+zero value: len("") = 0, correct answer is 0
+empty string: len("") = 0, correct answer is 0
+var assigned empty string: len("") = 0, correct answer is 0
+yawn: len("boring string") = 13, correct answer is 13
+string with \n: len("Hello, world!
+") = 14, correct answer is 14
+silly string: len("\"escape th	n(") = 16, correct answer is 16
+HEarth
+Hello, world!
+correct
+correct
+correct
+correct
+correct
+correct
+correct
+correct
+correct
+correct
+correct
+correct
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: redefining built-ins |
+----------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t20 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+out.c:59:6: error: redefinition of ‘Ghalt’
+   59 | void Ghalt(){
+      |      ^~~~~
+out.c:18:6: note: previous definition of ‘Ghalt’ with type ‘void()’
+   18 | void Ghalt(){
+      |      ^~~~~
+
+
+RETURN CODE: 1
+
+(C compiler unsuccessful, skipping test)
+
+-------------------------------------------------------------------------------
+Test: register blow-out |
+-------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t21 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+903
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: nested "for" loops |
+--------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t22 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+0
+100 101 102 103 104 105 
+1
+100 101 102 103 104 105 
+2
+100 101 102 103 104 105 
+3
+100 101 102 103 104 105 
+4
+100 101 102 103 104 105 
+5
+100 101 102 103 104 105 
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: EOF and scope |
+---------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t23 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out < /home/profs/aycock/411/TEST/final/input/gen.t23.in
+
+STDIN:
+The quick brown fox jumps over the lazy dog.
+
+
+STDOUT:
+The quick brown fox jumps over the lazy dog.
+
+END
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: banners |
+---------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t24 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+*******************
+*                 *
+*  Hello, world!  *
+*                 *
+*******************
+******
+*    *
+*    *
+*    *
+******
+**********
+*        *
+*  GoLF  *
+*        *
+**********
+***************************
+*                         *
+*  Compiler Construction  *
+*  CPSC 411               *
+*                         *
+***************************
+***************************
+*                         *
+*  Computer Science       *
+*  University of Calgary  *
+*                         *
+***************************
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: div and mod table |
+-------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.t25 > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+x	y	x / y	x % y
+5	3	1	2
+-5	3	-1	-2
+5	-3	-1	2
+-5	-3	1	-2
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: basic maze generation from Entombed (1982) |
+--------------------------------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.entombed > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+XXXXXXXXXX  XXXXXX    XXXXXX  XXXXXXXXXX
+XXXXXX          XXXXXXXX          XXXXXX
+XXXX    XXXX  XXXX    XXXX  XXXX    XXXX
+XXXXXXXX      XX        XX      XXXXXXXX
+XXXX  XX  XXXXXXXX    XXXXXXXX  XX  XXXX
+XXXX  XX    XX            XX    XX  XXXX
+XXXXXXXXXX  XX  XXXXXXXX  XX  XXXXXXXXXX
+XXXX    XX  XX  XX    XX  XX  XX    XXXX
+XXXX  XXXX  XX  XX    XX  XX  XXXX  XXXX
+XXXX    XX  XX  XX    XX  XX  XX    XXXX
+XXXXXXXXXX  XX  XX    XX  XX  XXXXXXXXXX
+XXXX  XX    XX  XXXXXXXX  XX    XX  XXXX
+XXXX  XX  XXXX  XX    XX  XXXX  XX  XXXX
+XXXXXXXX  XX    XXXXXXXX    XX  XXXXXXXX
+XXXX      XXXX    XXXX    XXXX      XXXX
+XXXXXXXX  XX    XXXXXXXX    XX  XXXXXXXX
+XXXXXX    XX  XXXX    XXXX  XX    XXXXXX
+XXXX    XXXX    XX    XX    XXXX    XXXX
+XXXXXXXXXX    XXXX    XXXX    XXXXXXXXXX
+XXXX    XXXX    XX    XX    XXXX    XXXX
+XXXX  XXXX    XXXXXXXXXXXX    XXXX  XXXX
+XXXX    XX  XXXX        XXXX  XX    XXXX
+XXXX  XXXX    XXXXXXXXXXXX    XXXX  XXXX
+XXXXXXXX    XXXX        XXXX    XXXXXXXX
+XXXX      XXXX    XXXX    XXXX      XXXX
+XXXX  XXXX      XXXXXXXX      XXXX  XXXX
+XXXXXXXX    XXXX        XXXX    XXXXXXXX
+XXXXXX    XXXX    XXXX    XXXX    XXXXXX
+XXXXXXXX        XXXXXXXX        XXXXXXXX
+XXXXXX    XXXX  XX    XX  XXXX    XXXXXX
+XXXX    XXXX    XX    XX    XXXX    XXXX
+XXXX  XXXX    XXXXXXXXXXXX    XXXX  XXXX
+XXXX    XX  XXXX        XXXX  XX    XXXX
+XXXX  XXXX    XXXXXXXXXXXX    XXXX  XXXX
+XXXXXXXX    XXXX        XXXX    XXXXXXXX
+XXXX      XXXX    XXXX    XXXX      XXXX
+XXXX  XXXX      XXXXXXXX      XXXX  XXXX
+XXXXXXXX    XXXX        XXXX    XXXXXXXX
+XXXXXX    XXXX    XXXX    XXXX    XXXXXX
+XXXXXXXX        XXXXXXXX        XXXXXXXX
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: the Game of Life |
+------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.life > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+Generation 1:
+0 1 1 1 0 1 0 0 0 0 
+0 0 0 0 0 0 1 0 0 0 
+0 0 0 1 1 0 1 0 0 0 
+0 1 0 1 0 0 1 0 0 0 
+0 1 1 0 0 0 0 1 0 0 
+0 0 0 0 1 0 0 1 0 0 
+0 1 1 0 0 0 0 0 1 0 
+0 1 0 0 1 0 0 0 0 0 
+0 1 1 0 0 0 0 1 0 0 
+0 1 1 0 1 0 0 0 1 0 
+Generation 2:
+0 0 1 0 0 0 0 0 0 0 
+0 0 0 0 0 0 1 0 0 0 
+0 0 1 1 1 0 1 1 0 0 
+0 1 0 1 1 1 1 1 0 0 
+0 1 1 1 0 0 1 1 0 0 
+0 0 0 1 0 0 0 1 1 0 
+0 1 1 1 0 0 0 0 0 0 
+1 0 0 1 0 0 0 0 0 0 
+1 0 0 0 0 0 0 0 0 0 
+0 1 1 1 0 0 0 0 0 0 
+Generation 3:
+0 0 0 0 0 0 0 0 0 0 
+0 0 1 0 0 1 1 1 0 0 
+0 0 1 0 0 0 0 0 0 0 
+0 1 0 0 0 0 0 0 1 0 
+0 1 0 0 0 0 0 0 0 0 
+0 0 0 0 1 0 1 1 1 0 
+0 1 0 1 1 0 0 0 0 0 
+1 0 0 1 0 0 0 0 0 0 
+1 0 0 1 0 0 0 0 0 0 
+0 1 1 0 0 0 0 0 0 0 
+Generation 4:
+0 0 0 0 0 0 1 0 0 0 
+0 0 0 0 0 0 1 0 0 0 
+0 1 1 0 0 0 1 1 0 0 
+0 1 1 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 1 0 
+0 0 1 1 1 1 0 1 0 0 
+0 0 1 1 1 1 0 1 0 0 
+1 1 0 1 0 0 0 0 0 0 
+1 0 0 1 0 0 0 0 0 0 
+0 1 1 0 0 0 0 0 0 0 
+Generation 5:
+0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 1 1 0 0 0 
+0 1 1 0 0 0 1 1 0 0 
+0 1 1 0 0 0 0 1 0 0 
+0 1 0 0 1 0 0 0 0 0 
+0 0 1 0 0 1 0 1 1 0 
+0 0 0 0 0 1 0 0 0 0 
+1 1 0 0 0 0 0 0 0 0 
+1 0 0 1 0 0 0 0 0 0 
+0 1 1 0 0 0 0 0 0 0 
+Generation 6:
+0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 1 1 1 0 0 
+0 1 1 0 0 1 0 1 0 0 
+1 0 0 1 0 0 1 1 0 0 
+0 1 0 1 0 0 1 1 1 0 
+0 0 0 0 1 1 1 0 0 0 
+0 1 0 0 0 0 1 0 0 0 
+1 1 0 0 0 0 0 0 0 0 
+1 0 0 0 0 0 0 0 0 0 
+0 1 1 0 0 0 0 0 0 0 
+Generation 7:
+0 0 0 0 0 0 1 0 0 0 
+0 0 0 0 0 1 0 1 0 0 
+0 1 1 0 1 1 0 0 1 0 
+1 0 0 1 1 1 0 0 0 0 
+0 0 1 1 0 0 0 0 1 0 
+0 0 1 0 1 0 0 0 0 0 
+1 1 0 0 0 0 1 0 0 0 
+1 1 0 0 0 0 0 0 0 0 
+1 0 1 0 0 0 0 0 0 0 
+0 1 0 0 0 0 0 0 0 0 
+Generation 8:
+0 0 0 0 0 0 1 0 0 0 
+0 0 0 0 1 1 0 1 0 0 
+0 1 1 0 0 0 0 0 0 0 
+0 0 0 0 0 1 0 0 0 0 
+0 1 1 0 0 1 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 
+1 0 1 0 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 
+1 0 1 0 0 0 0 0 0 0 
+0 1 0 0 0 0 0 0 0 0 
+Generation 9:
+0 0 0 0 0 1 1 0 0 0 
+0 0 0 0 0 1 1 0 0 0 
+0 0 0 0 1 1 1 0 0 0 
+0 0 0 0 0 0 0 0 0 0 
+0 1 1 0 0 0 0 0 0 0 
+0 0 1 1 0 0 0 0 0 0 
+0 0 1 1 0 0 0 0 0 0 
+0 0 1 1 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 
+0 1 0 0 0 0 0 0 0 0 
+Generation 10:
+0 0 0 0 0 1 1 0 0 0 
+0 0 0 0 0 0 0 1 0 0 
+0 0 0 0 1 0 1 0 0 0 
+0 0 0 0 0 1 0 0 0 0 
+0 1 1 1 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 
+0 1 0 0 1 0 0 0 0 0 
+0 1 0 0 0 0 0 0 0 0 
+0 1 1 1 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: selection sort |
+----------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.select > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+out.c: In function ‘Gmain’:
+out.c:135:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  135 | if(GA_1< GA_1){
+      |        ^
+out.c:217:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  217 | if(GA_2< GA_2){
+      |        ^
+out.c:299:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  299 | if(GA_3< GA_3){
+      |        ^
+out.c:381:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  381 | if(GA_4< GA_4){
+      |        ^
+out.c:463:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  463 | if(GA_5< GA_5){
+      |        ^
+out.c:545:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  545 | if(GA_6< GA_6){
+      |        ^
+out.c:627:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  627 | if(GA_7< GA_7){
+      |        ^
+out.c:709:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  709 | if(GA_8< GA_8){
+      |        ^
+out.c:791:8: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  791 | if(GA_9< GA_9){
+      |        ^
+out.c:873:9: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  873 | if(GA_10< GA_10){
+      |         ^
+out.c:955:9: warning: self-comparison always evaluates to false [-Wtautological-compare]
+  955 | if(GA_11< GA_11){
+      |         ^
+out.c:1037:9: warning: self-comparison always evaluates to false [-Wtautological-compare]
+ 1037 | if(GA_12< GA_12){
+      |         ^
+out.c:1119:9: warning: self-comparison always evaluates to false [-Wtautological-compare]
+ 1119 | if(GA_13< GA_13){
+      |         ^
+out.c:1201:9: warning: self-comparison always evaluates to false [-Wtautological-compare]
+ 1201 | if(GA_14< GA_14){
+      |         ^
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+30 23 4 9 86 63 48 61 98 39 8 73 18 35 0 
+0 23 4 9 86 63 48 61 98 39 8 73 18 35 30 
+0 4 23 9 86 63 48 61 98 39 8 73 18 35 30 
+0 4 8 9 86 63 48 61 98 39 23 73 18 35 30 
+0 4 8 9 86 63 48 61 98 39 23 73 18 35 30 
+0 4 8 9 18 63 48 61 98 39 23 73 86 35 30 
+0 4 8 9 18 23 48 61 98 39 63 73 86 35 30 
+0 4 8 9 18 23 30 61 98 39 63 73 86 35 48 
+0 4 8 9 18 23 30 35 98 39 63 73 86 61 48 
+0 4 8 9 18 23 30 35 39 98 63 73 86 61 48 
+0 4 8 9 18 23 30 35 39 48 63 73 86 61 98 
+0 4 8 9 18 23 30 35 39 48 61 73 86 63 98 
+0 4 8 9 18 23 30 35 39 48 61 63 86 73 98 
+0 4 8 9 18 23 30 35 39 48 61 63 73 86 98 
+0 4 8 9 18 23 30 35 39 48 61 63 73 86 98 
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+-------------------------------------------------------------------------------
+Test: prime number sieve |
+--------------------------
+
+% ./golf /home/profs/aycock/411/TEST/final/gen.sieve > out.c
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% /usr/bin/gcc -Wall -o ./a.out out.c
+
+STDOUT:
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+% ./a.out
+
+STDOUT:
+2
+3
+5
+7
+11
+13
+17
+19
+23
+29
+31
+37
+41
+43
+47
+53
+59
+61
+67
+71
+73
+79
+83
+89
+97
+25 prime numbers <= 100
+
+
+STDERR:
+
+
+RETURN CODE: 0
+
+Run ended on Wed Apr 12 20:44:35 2023
 
