@@ -2,7 +2,7 @@
 Cole Cathcart, 30043556
 April 12, 2023
 
-A C++ program which is a compiler for the 'GoLF' language. This program was written in C++ without the use of external compiler-building tools. A short description of the program structure:
+A C++ program which is a compiler for the 'GoLF' language. This program was written in C++ without the use of external compiler-building tools. It compiles to *C code*. A short description of the program structure:
 - main.cpp: The driver of the program
 - scanner.cpp/scanner.hpp: The scanner. Contains functions to facilitate the scanning of an input file, the main of which is called 'lex()' and contains the majority of the scanning logic
 - logger.cpp/logger.hpp: Handles error and warning messages in order to have a central location for error handling. Implemented as a singleton pattern for ease of use
