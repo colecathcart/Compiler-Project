@@ -133,7 +133,7 @@ void Checker::handle_predeclared(Stable &s_table){
 void Checker::if_for_check(Ast &tree){
     for(auto i : tree.children){
         if(i.type == "if" || i.type == "for"){
-            if(i.children[0].sig != "bool"){
+            if(i.children[0].sig != "bool" && i.children[0].type != "u!" && i.children[0].type != "u-"){
                 logger->error("If and for loops must have a boolean expression type",i.where);
             }
         }
@@ -254,7 +254,7 @@ void Checker::const_and_rangecheck(Ast &tree){
             if(i.children[0].type == "INTEGER" || 
                 i.children[0].type == "STRING"  ||
                 (i.children[0].type == "ID" && (i.children[0].attr == "true" || i.children[0].attr == "false"))){
-                logger->error("Can't assign to a constant",i.where);
+                //logger->error("Can't assign to a constant",i.where);
             }
             if(i.children[0].type == "ID"){
                 if(i.children[1].type == "INTEGER"){
@@ -267,7 +267,7 @@ void Checker::const_and_rangecheck(Ast &tree){
                             logger->error("Integer literal out of range",i.where);
                         }
                     }
-                }else if(i.children[1].type == "u-"){
+                }else if(i.children[1].type == "u-" && i.children[1].children[0].type == "INTEGER"){
                     std::string num = i.children[1].children[0].attr;
                     if(num.size() > 10){
                         logger->error("Integer literal out of range",i.where);

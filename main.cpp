@@ -104,7 +104,7 @@ int main(int argc, char* argv[]){
     Checker checker = Checker(ast);
     ast = checker.check();
     Generator generator = Generator(ast);
-    astprinter(ast,"");
+    //astprinter(ast,"");
     generator.generate();
     file.close();
 

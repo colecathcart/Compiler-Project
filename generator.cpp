@@ -7,7 +7,8 @@
 /// The implementation is based off  Dr. Aycock's example code 
 /// in python, as shown in the video series "Calculator demo video 
 /// series" under "Other resources" on the CPSC 411 d2l page:
-/// https://youtu.be/NcIhZ_6l3T8 
+/// https://youtu.be/NcIhZ_6l3T8 , as well as the outputs of the reference
+/// compiler found on the school linux servers.
 ///
 
 #include "ast.hpp"
@@ -26,8 +27,9 @@ Generator::Generator(Ast &ast) : ast_{ast}{
     logger = Logger::getLogger();
 }
 
+//Top-level function called by main. Calls the other generator functions
 void Generator::generate(){
-    zerodivcheck(ast_);
+    //zerodivcheck(ast_);
     realreturncheck();
     before();
     toplevel();
@@ -39,7 +41,7 @@ void Generator::generate(){
 void Generator::before(){
     printf("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/types.h>\n");
     printf("typedef int32_t golf_t;\ngolf_t Gtrue = 1;\ngolf_t Gfalse = 0;\n");
-    printf("golf_t Ggetchar();\n_Noreturn void Ghalt();\ngolf_t Glen(const char *);\nvoid Gprintb(golf_t);\nvoid Gprintc(golf_t);\nvoid Gprinti(golf_t);\nvoid Gprints(const char *);\n");
+    printf("golf_t Ggetchar();\n_Noreturn void Ghalt();\ngolf_t Glen(const char *);\nvoid Gprintb(golf_t);\nvoid Gprintc(golf_t);\nvoid Gprinti(golf_t);\nvoid Gprints(const char *);\n_Noreturn void Gnoreturn(const char *fn);\ngolf_t Gzerodiv(golf_t n);\n");
 
     printf("_Noreturn\nvoid Ghalt(){\n\texit(0);\n}\n");
     printf("golf_t Ggetchar(){\n\treturn getchar();\n}\n");
@@ -48,6 +50,8 @@ void Generator::before(){
     printf("void Gprintc(golf_t c){\n\tputchar(c);\n}\n");
     printf("void Gprinti(golf_t i){\n\tprintf(\"%%d\", i);\n}\n");
     printf("void Gprints(const char *s){\n\tprintf(\"%%s\", s);\n}\n");
+	printf("golf_t Gzerodiv(golf_t n){\n\tif (n == 0) {\n\tfprintf(stderr, \"error: division by zero\\n\");\n\texit(!0);}\n\treturn n;}\n");
+	printf("_Noreturn\nvoid Gnoreturn(const char *fn){\n\tfprintf(stderr, \"error: function \\\"%%s\\\" must return a value\\n\", fn);\n\texit(!0);}\n");
 }
 
 //Function for removing leading zeroes on an integer type
@@ -59,7 +63,7 @@ std::string Generator::lzremover(std::string num){
     }
 }
 
-//Function to handle dividing by zero
+//Function to handle dividing by zero (NOT USED)
 void Generator::zerodivcheck(Ast &ast){
     for(auto i : ast.children){
         if(ast.type == "/" && lzremover(ast.children[1].attr) == "0"){
@@ -73,7 +77,7 @@ void Generator::zerodivcheck(Ast &ast){
 int Generator::realrethelper(Ast &ast){
     int goodreturn = 0;
     for(auto i: ast.children){
-        if(i.type == "return"){
+        if(i.type == "return" || i.attr == "halt"){
             goodreturn++;
         }else if(i.type == "if"){
             for(auto k : i.children){
@@ -90,11 +94,11 @@ int Generator::realrethelper(Ast &ast){
 
 //Function to handle returns that only exist within conditionals
 void Generator::realreturncheck(){
-    for(auto i : ast_.children){
+    for(auto &i : ast_.children){
         if(i.type == "func" && i.children[1].children[1].attr != "void"){
             int goodreturn = 0;
             for(auto j : i.children[2].children){
-                if(j.type == "return"){
+                if(j.type == "return" || j.attr == "halt"){
                     goodreturn++;
                 }else if(j.type == "if"){
                     for(auto k : j.children){
@@ -107,7 +111,12 @@ void Generator::realreturncheck(){
                 }
             }
             if(goodreturn < 1){
-                logger->error("Function must return a value",i.where);
+                Ast noret = Ast{"ID","noreturn",i.where};
+				Ast args = Ast{"arguments"};
+				Ast arg = Ast{"STRING",i.children[0].attr,i.where};
+				args.children.push_back(arg);
+				noret.children.push_back(args);
+				i.children[2].children.push_back(noret);
             }
         }
     }
@@ -121,9 +130,11 @@ void Generator::toplevel(){
             std::string type = i.children[1].children[1].attr;
             if(type == "int" || type == "bool"){
                 type = "golf_t";
-            }else{
+            }else if(type == "string"){
                 type = "const char *";
-            }
+            }else{
+				type = "void";
+			}
             printf("%s G%s(",type.c_str(),fname.c_str());
             unsigned int length = 0;
             for(auto j : i.children[1].children[0].children){
@@ -169,9 +180,11 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
             std::string type = i.children[1].children[1].attr;
             if(type == "int" || type == "bool"){
                 type = "golf_t";
-            }else{
+            }else if(type == "string"){
                 type = "const char *";
-            }
+            }else{
+				type = "void";
+			}
             printf("%s G%s(",type.c_str(),fname.c_str());
             unsigned int length = 0;
             for(auto j : i.children[1].children[0].children){
@@ -245,7 +258,7 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
                 printf("%s(",i.type.c_str());
             }
             if(i.children[0].attr == "true"){
-                printf("true){\n");
+                printf("1){\n");
             }else if(i.children[0].type == "ID"){
                 argshandler(i.children[0]);
                 printf("){\n");
@@ -256,11 +269,11 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
             outputter(i.children[1], level + 1, ";");
             printf("}\n");
             if(i.children.size() > 2 && i.children[2].type == "else"){
-                printf("else");
+                printf("else ");
                 outputter(i.children[2], level + 1, ";");
             }
         }else if(i.type == "else"){
-            printf("else");
+            printf("else ");
             outputter(i, level + 1, ";");
         }else if(i.type == "return"){
             printf("return ");
@@ -273,7 +286,9 @@ void Generator::outputter(Ast &tree, int level, std::string setsemi){
             printf("%s%s",i.attr.c_str(),setsemi.c_str());
         }else if(i.type == "STRING"){
             printf("\"%s\"%s",i.attr.c_str(),setsemi.c_str());
-        }
+        }else if(i.type == "break"){
+			printf("break;");
+		}
     }
 }
 
@@ -306,7 +321,7 @@ void Generator::eqhandler(Ast &ast){
     if(ast.type == "u!" || ast.type == "u-" || ast.type == "expr_operand"){
         if(ast.type == "u!"){
             printf("!(");
-        }else if(ast.type == "u!"){
+        }else if(ast.type == "u-"){
             printf("-(");
         }else{
             printf("(");
@@ -315,10 +330,41 @@ void Generator::eqhandler(Ast &ast){
         printf(")");
     } else {
         if(is_eq(ast.type)){
-            eqhandler(ast.children[0]);
-            printf("%s ",ast.type.c_str());
-            if(ast.children.size() > 1){
-                eqhandler(ast.children[1]);
+            if(ast.children.size() > 1 && ast.children[0].type == "STRING" && ast.children[1].type == "STRING"){
+                printf("strcmp(\"%s\", \"%s\")", ast.children[0].attr.c_str(), ast.children[1].attr.c_str());
+                if(ast.type == "<" || ast.type == ">" || ast.type == "<=" || ast.type == ">="){
+                    printf(" %s 0", ast.type.c_str());
+                }else if(ast.type == "=="){
+                    printf(" == 0");
+                }
+            }else if(ast.children.size() > 1 && ast.children[0].type == "STRING" && ast.children[1].type == "ID"){
+                printf("strcmp(\"%s\", ", ast.children[0].attr.c_str());
+                argshandler(ast.children[1]);
+                printf(") ");
+                if(ast.type == "<" || ast.type == ">" || ast.type == "<=" || ast.type == ">="){
+                    printf(" %s 0", ast.type.c_str());
+                }else if(ast.type == "=="){
+                    printf(" == 0");
+                }
+            }else if(ast.children.size() > 1 && ast.children[0].type == "ID" && ast.children[1].type == "STRING"){
+                printf("strcmp(");
+                argshandler(ast.children[0]);
+                printf(", \"%s\")", ast.children[1].attr.c_str());
+                if(ast.type == "<" || ast.type == ">" || ast.type == "<=" || ast.type == ">="){
+                    printf(" %s 0", ast.type.c_str());
+                }else if(ast.type == "=="){
+                    printf(" == 0");
+                }
+            }else{
+                eqhandler(ast.children[0]);
+                printf("%s ",ast.type.c_str());
+                if(ast.children.size() > 1 && ast.type == "/"){
+					printf("Gzerodiv(");
+                    eqhandler(ast.children[1]);
+					printf(")");
+                }else if(ast.children.size() > 1){
+					eqhandler(ast.children[1]);
+				}
             }
         }else if(ast.type == "ID"){
             printf("G%s",ast.attr.c_str());
