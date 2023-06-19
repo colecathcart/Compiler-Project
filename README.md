@@ -1,5 +1,5 @@
-# CPSC411 Term Project
-Cole Cathcart, 30043556
+# Compiler Project
+Cole Cathcart
 April 12, 2023
 
 A C++ program which is a compiler for the 'GoLF' language. This program was written in C++ without the use of external compiler-building tools. It compiles to **C code**. A short description of the program structure:
